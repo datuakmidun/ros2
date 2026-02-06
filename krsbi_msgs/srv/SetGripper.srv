@@ -1,0 +1,25 @@
+# SetGripper.srv
+# Service untuk mengontrol gripper
+
+# Request
+uint8 ACTION_OPEN = 0               # Buka gripper
+uint8 ACTION_CLOSE = 1              # Tutup gripper
+uint8 ACTION_GRAB = 2               # Grab bola (close dengan force)
+uint8 ACTION_RELEASE = 3            # Lepas bola (open dengan gentle)
+uint8 ACTION_STOP = 4               # Stop motor gripper
+uint8 ACTION_SET_POSITION = 5       # Set posisi spesifik
+uint8 action
+
+# Untuk ACTION_SET_POSITION
+float32 position                    # 0.0 = closed, 1.0 = fully open
+
+# PWM override (0 = auto)
+int16 pwm_override                  # -255 to 255, 0 = auto
+
+# Timeout
+float32 timeout                     # Timeout dalam detik (0 = default)
+---
+# Response
+bool success
+string message
+krsbi_msgs/GripperState final_state

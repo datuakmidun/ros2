@@ -1,0 +1,60 @@
+# KickBall.action
+# Action untuk menendang bola (termasuk approach dan kick)
+
+# Goal
+# Kick type
+uint8 TYPE_SHOOT = 0                # Tendangan ke gawang
+uint8 TYPE_PASS = 1                 # Pass ke teman
+uint8 TYPE_CLEAR = 2                # Clearance
+uint8 kick_type
+
+# Target (untuk PASS)
+float64 target_x                    # Target x position (untuk pass)
+float64 target_y                    # Target y position (untuk pass)
+uint8 target_robot_id               # Target robot ID (untuk pass), 0 = position-based
+
+# Power
+uint8 POWER_AUTO = 0                # Automatic based on distance
+uint8 POWER_LOW = 1
+uint8 POWER_MEDIUM = 2
+uint8 POWER_HIGH = 3
+uint8 POWER_MAX = 4
+uint8 power_level
+
+# Options
+bool approach_ball                  # Approach ball first if not in gripper
+bool align_to_target                # Align to target before kick
+bool charge_if_needed               # Charge kicker if not ready
+float64 timeout                     # Timeout dalam detik
+---
+# Result
+bool success
+string message
+
+# Phases completed
+bool approached                     # Successfully approached ball
+bool aligned                        # Successfully aligned to target
+bool charged                        # Successfully charged kicker
+bool kicked                         # Successfully kicked
+
+# Final state
+float64 kick_power_used             # Power yang digunakan
+float64 duration                    # Total duration (detik)
+---
+# Feedback
+# Current phase
+uint8 PHASE_APPROACHING = 0
+uint8 PHASE_ALIGNING = 1
+uint8 PHASE_CHARGING = 2
+uint8 PHASE_KICKING = 3
+uint8 PHASE_COMPLETE = 4
+uint8 current_phase
+
+float64 progress                    # Overall progress 0.0 - 1.0
+string status                       # Status message
+
+# Details
+float64 ball_distance               # Jarak ke bola saat ini
+float64 alignment_error             # Error alignment saat ini
+float64 charge_percentage           # Persentase charge kicker
+float64 elapsed_time

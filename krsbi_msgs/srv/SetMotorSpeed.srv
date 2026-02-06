@@ -1,0 +1,24 @@
+# SetMotorSpeed.srv
+# Service untuk mengatur kecepatan motor
+
+# Request
+uint8 MODE_VELOCITY = 0             # linear_x, linear_y, angular_z
+uint8 MODE_RPM = 1                  # motor1_rpm, motor2_rpm, motor3_rpm
+uint8 mode
+
+# Velocity mode (m/s dan rad/s)
+float64 linear_x                    # Kecepatan linear x (m/s)
+float64 linear_y                    # Kecepatan linear y (m/s)
+float64 angular_z                   # Kecepatan angular (rad/s)
+
+# RPM mode
+float64 motor1_rpm
+float64 motor2_rpm
+float64 motor3_rpm
+
+# Duration (0 = indefinite until new command)
+float64 duration                    # Durasi command (detik)
+---
+# Response
+bool success
+string message

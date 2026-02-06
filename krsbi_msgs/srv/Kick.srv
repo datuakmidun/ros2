@@ -1,0 +1,24 @@
+# Kick.srv
+# Service untuk menendang bola (fire kicker)
+
+# Request
+uint8 POWER_LOW = 1                 # Tendangan pelan (pass pendek)
+uint8 POWER_MEDIUM = 2              # Tendangan sedang (pass jauh)
+uint8 POWER_HIGH = 3                # Tendangan keras (shoot)
+uint8 POWER_MAX = 4                 # Tendangan maksimum
+uint8 power_level
+
+# Atau gunakan durasi discharge (ms)
+uint16 discharge_duration_ms        # 0 = gunakan power_level
+bool use_duration                   # True = gunakan durasi, False = gunakan power level
+
+# Safety checks
+bool check_ball_present             # Cek bola ada sebelum tendang
+bool check_charge_ready             # Cek capacitor sudah full
+---
+# Response
+bool success
+string message
+float32 voltage_before              # Tegangan sebelum tendang
+float32 voltage_after               # Tegangan setelah tendang
+krsbi_msgs/KickerState final_state

@@ -1,0 +1,29 @@
+# Calibrate.srv
+# Service untuk kalibrasi sensor
+
+# Request
+uint8 TARGET_IMU = 0                # Kalibrasi IMU
+uint8 TARGET_MOTORS = 1             # Kalibrasi motor encoders
+uint8 TARGET_DISTANCE = 2           # Kalibrasi sensor jarak
+uint8 TARGET_KICKER = 3             # Kalibrasi kicker voltage
+uint8 TARGET_GRIPPER = 4            # Kalibrasi gripper limits
+uint8 TARGET_ALL = 255              # Kalibrasi semua
+uint8 target
+
+# Calibration type
+uint8 TYPE_AUTO = 0                 # Automatic calibration
+uint8 TYPE_MANUAL = 1               # Manual calibration with provided values
+uint8 calibration_type
+
+# Manual calibration values (jika TYPE_MANUAL)
+float64[] calibration_values        # Values tergantung target
+
+# Options
+bool save_to_eeprom                 # Simpan ke EEPROM Arduino
+float32 timeout                     # Timeout kalibrasi (detik)
+---
+# Response
+bool success
+string message
+float64[] result_values             # Hasil kalibrasi
+string[] result_names               # Nama setiap nilai hasil

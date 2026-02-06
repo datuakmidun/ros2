@@ -1,0 +1,16 @@
+# ChargeKicker.srv
+# Service untuk mengcharge capacitor kicker
+
+# Request
+float32 target_voltage              # Target tegangan (Volt), 0 = default max
+float32 target_percentage           # Alternatif: target persentase (0-100)
+bool use_percentage                 # True = gunakan percentage, False = gunakan voltage
+float32 timeout                     # Timeout charging dalam detik (0 = default)
+---
+# Response
+bool success
+string message
+float32 final_voltage               # Tegangan akhir
+float32 final_percentage            # Persentase akhir
+float32 charge_time                 # Waktu yang dibutuhkan (detik)
+krsbi_msgs/KickerState final_state

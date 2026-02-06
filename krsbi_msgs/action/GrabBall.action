@@ -1,0 +1,51 @@
+# GrabBall.action
+# Action untuk mengambil bola dengan gripper
+
+# Goal
+# Approach mode
+uint8 MODE_DIRECT = 0               # Approach langsung
+uint8 MODE_ALIGN_FIRST = 1          # Align dengan bola dulu baru approach
+uint8 MODE_INTERCEPT = 2            # Intercept bola yang bergerak
+uint8 approach_mode
+
+# Speed
+float64 approach_speed              # Kecepatan approach (m/s), 0 = default
+float64 final_approach_speed        # Kecepatan saat final approach (m/s), 0 = default
+
+# Options
+bool wait_until_secure              # Tunggu sampai bola benar-benar tercengkram
+float64 secure_timeout              # Timeout untuk konfirmasi secure (detik)
+float64 timeout                     # Total timeout (detik)
+---
+# Result
+bool success
+string message
+bool ball_grabbed                   # Bola berhasil diambil
+bool ball_secure                    # Bola tercengkram dengan aman
+float64 duration                    # Durasi total (detik)
+krsbi_msgs/GripperState gripper_state
+---
+# Feedback
+# Current phase
+uint8 PHASE_SEARCHING = 0           # Mencari bola
+uint8 PHASE_APPROACHING = 1         # Mendekati bola
+uint8 PHASE_ALIGNING = 2            # Aligning dengan bola
+uint8 PHASE_FINAL_APPROACH = 3      # Final approach
+uint8 PHASE_GRABBING = 4            # Mengambil bola
+uint8 PHASE_SECURING = 5            # Memastikan bola aman
+uint8 PHASE_COMPLETE = 6
+uint8 current_phase
+
+float64 progress                    # Progress 0.0 - 1.0
+string status                       # Status message
+
+# Ball info
+bool ball_visible                   # Bola terlihat
+float64 ball_distance               # Jarak ke bola (meter)
+float64 ball_angle                  # Sudut ke bola (radian)
+
+# Gripper info
+bool gripper_ready                  # Gripper siap
+bool ball_detected_in_gripper       # Bola terdeteksi di gripper
+
+float64 elapsed_time

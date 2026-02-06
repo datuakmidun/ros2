@@ -1,0 +1,16 @@
+# GetRobotState.srv
+# Service untuk mendapatkan status robot lengkap
+
+# Request
+bool include_sensors                # Include sensor data
+bool include_motor_feedback         # Include motor feedback
+bool include_game_state             # Include game state
+---
+# Response
+bool success
+string message
+krsbi_msgs/RobotState robot_state
+
+# Optional additional data
+krsbi_msgs/SensorData sensor_data
+krsbi_msgs/GameState game_state

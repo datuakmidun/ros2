@@ -1,0 +1,47 @@
+# MoveTo.action
+# Action untuk menggerakkan robot ke posisi tertentu
+
+# Goal
+# Target position dalam field coordinates
+float64 target_x                    # Target x (meter)
+float64 target_y                    # Target y (meter)
+float64 target_theta                # Target heading (radian), NaN = tidak peduli heading
+
+# Mode
+uint8 MODE_POSITION = 0             # Ke posisi tanpa peduli heading
+uint8 MODE_POSITION_AND_HEADING = 1 # Ke posisi dengan heading
+uint8 MODE_APPROACH_BALL = 2        # Mendekati bola
+uint8 mode
+
+# Tolerances
+float64 position_tolerance          # Toleransi posisi (meter), default 0.05
+float64 heading_tolerance           # Toleransi heading (radian), default 0.1
+
+# Speed settings
+float64 max_linear_speed            # Max linear speed (m/s), 0 = default
+float64 max_angular_speed           # Max angular speed (rad/s), 0 = default
+
+# Options
+bool avoid_obstacles                # Hindari obstacles
+bool avoid_robots                   # Hindari robot lain
+float64 timeout                     # Timeout dalam detik, 0 = no timeout
+---
+# Result
+bool success
+string message
+float64 final_x
+float64 final_y
+float64 final_theta
+float64 position_error              # Error posisi akhir (meter)
+float64 heading_error               # Error heading akhir (radian)
+float64 duration                    # Durasi pergerakan (detik)
+---
+# Feedback
+float64 current_x
+float64 current_y
+float64 current_theta
+float64 distance_remaining          # Jarak tersisa (meter)
+float64 heading_remaining           # Heading tersisa (radian)
+float64 progress                    # Progress 0.0 - 1.0
+float64 elapsed_time                # Waktu yang sudah berlalu (detik)
+string status                       # Status message

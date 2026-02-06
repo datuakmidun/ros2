@@ -1,0 +1,26 @@
+# SetGameState.srv
+# Service untuk mengatur game state (dari GameController atau manual)
+
+# Request
+uint8 phase                         # Game phase (dari GameState.msg constants)
+uint8 set_play                      # Set play type (dari GameState.msg constants)
+bool is_kickoff_team                # Apakah tim yang kick-off
+uint8 own_score                     # Skor tim sendiri
+uint8 opponent_score                # Skor lawan
+int32 time_remaining                # Sisa waktu babak (detik)
+uint8 half                          # Babak ke (1 atau 2)
+
+# Penalty
+bool is_penalized
+int32 penalty_time
+
+# Source
+uint8 SOURCE_GAMECONTROLLER = 0     # Dari GameController resmi
+uint8 SOURCE_MANUAL = 1             # Set manual
+uint8 SOURCE_BUTTON = 2             # Dari button di robot
+uint8 source
+---
+# Response
+bool success
+string message
+krsbi_msgs/GameState new_state

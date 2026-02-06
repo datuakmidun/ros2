@@ -1,0 +1,44 @@
+# RotateTo.action
+# Action untuk memutar robot ke heading tertentu
+
+# Goal
+# Target heading
+float64 target_theta                # Target heading (radian)
+
+# Mode
+uint8 MODE_ABSOLUTE = 0             # Rotate to absolute heading
+uint8 MODE_RELATIVE = 1             # Rotate by relative angle
+uint8 MODE_FACE_POINT = 2           # Face toward a point
+uint8 mode
+
+# Untuk MODE_FACE_POINT
+float64 face_x                      # Point x to face
+float64 face_y                      # Point y to face
+
+# Tolerance
+float64 tolerance                   # Toleransi heading (radian), default 0.05
+
+# Speed settings
+float64 max_angular_speed           # Max angular speed (rad/s), 0 = default
+
+# Options
+uint8 DIRECTION_AUTO = 0            # Pilih arah terdekat
+uint8 DIRECTION_CW = 1              # Clockwise
+uint8 DIRECTION_CCW = 2             # Counter-clockwise
+uint8 direction
+
+float64 timeout                     # Timeout dalam detik, 0 = no timeout
+---
+# Result
+bool success
+string message
+float64 final_theta
+float64 heading_error               # Error heading akhir (radian)
+float64 duration                    # Durasi rotasi (detik)
+---
+# Feedback
+float64 current_theta
+float64 heading_remaining           # Heading tersisa (radian)
+float64 progress                    # Progress 0.0 - 1.0
+float64 angular_velocity            # Current angular velocity (rad/s)
+float64 elapsed_time
