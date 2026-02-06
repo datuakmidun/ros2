@@ -1,0 +1,95 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Serial Communication Configuration
+# =============================================================================
+# Configuration for serial communication with Arduino Mega
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Serial Port Configuration
+# -----------------------------------------------------------------------------
+serial:
+  # Port settings
+  port: "/dev/ttyUSB0" # Linux default (Windows: "COM3")
+  baudrate: 115200 # Baud rate
+  timeout: 0.1 # Read timeout in seconds
+  write_timeout: 0.1 # Write timeout in seconds
+
+  # Port discovery (auto-detect Arduino)
+  auto_detect: true
+  auto_detect_vid: 0x2341 # Arduino Mega VID
+  auto_detect_pid: 0x0042 # Arduino Mega PID
+
+  # Alternative ports to try
+  alternative_ports:
+    linux:
+      - "/dev/ttyUSB0"
+      - "/dev/ttyUSB1"
+      - "/dev/ttyACM0"
+      - "/dev/ttyACM1"
+    windows:
+      - "COM3"
+      - "COM4"
+      - "COM5"
+      - "COM6"
+
+# -----------------------------------------------------------------------------
+# Connection Management
+# -----------------------------------------------------------------------------
+connection:
+  # Reconnection settings
+  auto_reconnect: true
+  reconnect_interval: 2.0 # seconds
+  max_reconnect_attempts: 10 # 0 for infinite
+
+  # Connection startup
+  startup_delay: 2.0 # seconds (wait for Arduino reset)
+
+  # Heartbeat
+  heartbeat:
+    enabled: true
+    interval: 0.5 # seconds
+    timeout: 2.0 # seconds (connection lost threshold)
+
+# -----------------------------------------------------------------------------
+# Data Rates
+# -----------------------------------------------------------------------------
+rates:
+  # Read/write frequencies
+  read_rate: 100 # Hz (read loop)
+  write_rate: 50 # Hz (command rate limit)
+  sensor_publish_rate: 50 # Hz
+
+  # Command throttling
+  motor_command_min_interval: 0.02 # seconds (50 Hz max)
+
+# -----------------------------------------------------------------------------
+# Buffer Settings
+# -----------------------------------------------------------------------------
+buffer:
+  read_size: 256 # bytes per read
+  write_queue_size: 10 # max queued commands
+
+  # Packet settings
+  max_packet_size: 64 # bytes
+  receive_buffer_size: 512 # bytes (circular buffer)
+
+# -----------------------------------------------------------------------------
+# Timing
+# -----------------------------------------------------------------------------
+timing:
+  # Response timeouts
+  command_timeout: 0.1 # seconds (for request-response)
+  emergency_stop_timeout: 0.01 # seconds (immediate)
+
+  # Watchdog
+  watchdog_timeout: 0.5 # seconds (stop motors if no command)
+
+# -----------------------------------------------------------------------------
+# Debug Settings
+# -----------------------------------------------------------------------------
+debug:
+  enabled: false
+  log_packets: false # Log all packet data
+  log_raw_data: false # Log raw serial bytes
+  print_statistics: true # Print stats periodically
+  statistics_interval: 5.0 # seconds

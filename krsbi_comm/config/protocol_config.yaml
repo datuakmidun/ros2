@@ -1,0 +1,193 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Communication Protocol Configuration
+# =============================================================================
+# Protocol specification for Arduino <-> Intel NUC communication
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Packet Structure
+# -----------------------------------------------------------------------------
+# +--------+--------+--------+--------+--------+...+--------+--------+
+# | START  |  LEN   |  CMD   | DATA_0 | DATA_1 |...| DATA_N |  CRC   |
+# +--------+--------+--------+--------+--------+...+--------+--------+
+# |  0xAA  | 1 byte | 1 byte |      N bytes         | 1 byte |
+# +--------+--------+--------+------------------------+--------+
+#
+# START  : Start byte (0xAA)
+# LEN    : Total packet length (including START and CRC)
+# CMD    : Command byte
+# DATA   : Command-specific data (variable length)
+# CRC    : CRC-8 checksum of LEN + CMD + DATA
+
+packet:
+  start_byte: 0xAA
+  min_length: 4 # START + LEN + CMD + CRC (no data)
+  max_length: 64 # Maximum packet size
+  header_size: 3 # START + LEN + CMD
+  crc_polynomial: 0x07 # CRC-8 polynomial (x^8 + x^2 + x + 1)
+
+# -----------------------------------------------------------------------------
+# Command Definitions (PC -> Arduino)
+# -----------------------------------------------------------------------------
+commands:
+  # Motor control
+  MOTOR_VELOCITY: 0x01 # Set motor velocities
+  MOTOR_RPM: 0x02 # Set motor RPM directly
+  MOTOR_PWM: 0x03 # Set motor PWM directly
+  MOTOR_STOP: 0x04 # Stop all motors
+
+  # Kicker control
+  KICKER_CHARGE: 0x10 # Start charging capacitor
+  KICKER_KICK: 0x11 # Execute kick
+  KICKER_STOP: 0x12 # Stop charging/discharge
+
+  # Gripper control
+  GRIPPER_OPEN: 0x20 # Open gripper
+  GRIPPER_CLOSE: 0x21 # Close gripper
+  GRIPPER_SET_POS: 0x22 # Set gripper position
+  GRIPPER_STOP: 0x23 # Stop gripper
+
+  # Sensor requests
+  REQUEST_SENSORS: 0x30 # Request all sensor data
+  REQUEST_IMU: 0x31 # Request IMU data
+  REQUEST_MOTORS: 0x32 # Request motor feedback
+  REQUEST_DISTANCE: 0x33 # Request distance sensors
+  REQUEST_STATUS: 0x34 # Request system status
+
+  # Calibration
+  CALIBRATE_IMU: 0x40 # Calibrate IMU
+  CALIBRATE_MOTORS: 0x41 # Calibrate motor encoders
+
+  # System
+  HEARTBEAT: 0xF0 # Heartbeat ping
+  EMERGENCY_STOP: 0xFF # Emergency stop all
+
+# -----------------------------------------------------------------------------
+# Response Definitions (Arduino -> PC)
+# -----------------------------------------------------------------------------
+responses:
+  # Acknowledgments
+  ACK: 0x00 # Command acknowledged
+  NACK: 0x01 # Command failed
+
+  # Sensor data
+  SENSOR_ALL: 0x80 # All sensor data
+  SENSOR_IMU: 0x81 # IMU data
+  SENSOR_MOTORS: 0x82 # Motor feedback
+  SENSOR_DISTANCE: 0x83 # Distance sensors
+  SENSOR_KICKER: 0x84 # Kicker state
+  SENSOR_GRIPPER: 0x85 # Gripper state
+  SENSOR_BATTERY: 0x86 # Battery status
+
+  # Status
+  STATUS_OK: 0x90 # System OK
+  STATUS_ERROR: 0x91 # Error occurred
+  STATUS_WARNING: 0x92 # Warning
+
+  # Heartbeat
+  HEARTBEAT_ACK: 0xF0 # Heartbeat response
+
+# -----------------------------------------------------------------------------
+# Data Formats
+# -----------------------------------------------------------------------------
+data_formats:
+  # Motor velocity command (CMD: 0x01)
+  # 6 bytes: vx(int16), vy(int16), omega(int16)
+  # Values: mm/s for linear, mrad/s for angular
+  motor_velocity:
+    length: 6
+    format: ">hhh" # 3x signed 16-bit, big-endian
+    scale_linear: 1000 # m/s to mm/s
+    scale_angular: 1000 # rad/s to mrad/s
+
+  # Motor RPM command (CMD: 0x02)
+  # 6 bytes: m1(int16), m2(int16), m3(int16)
+  motor_rpm:
+    length: 6
+    format: ">hhh"
+
+  # Motor PWM command (CMD: 0x03)
+  # 6 bytes: m1(int16), m2(int16), m3(int16)
+  # Values: -255 to 255
+  motor_pwm:
+    length: 6
+    format: ">hhh"
+
+  # Kicker charge (CMD: 0x10)
+  # 1 byte: target voltage percentage (0-100)
+  kicker_charge:
+    length: 1
+    format: ">B"
+
+  # Kicker kick (CMD: 0x11)
+  # 2 bytes: power(uint8), duration_ms(uint8)
+  kicker_kick:
+    length: 2
+    format: ">BB"
+
+  # Gripper set position (CMD: 0x22)
+  # 1 byte: position (0-255, 0=closed, 255=open)
+  gripper_position:
+    length: 1
+    format: ">B"
+
+  # All sensor response (RSP: 0x80)
+  # Variable length, includes all sensor data
+  sensor_all:
+    # IMU: 12 bytes (roll, pitch, yaw as int16 in 0.01 deg)
+    # Motors: 12 bytes (3x ticks as int32)
+    # Distance: 12 bytes (6x uint16 in mm)
+    # Status: 4 bytes (battery, flags)
+    min_length: 40
+
+  # IMU response (RSP: 0x81)
+  # 18 bytes: roll, pitch, yaw (int16 0.01deg), gx, gy, gz, ax, ay, az
+  sensor_imu:
+    length: 18
+    format: ">hhhhhhhhh"
+    scale_angle: 100 # 0.01 degrees
+    scale_gyro: 100 # 0.01 deg/s
+    scale_accel: 1000 # mg
+
+  # Motor feedback (RSP: 0x82)
+  # 18 bytes: 3x(ticks:int32, rpm:int16)
+  sensor_motors:
+    length: 18
+    format: ">ihihih"
+
+  # Distance sensors (RSP: 0x83)
+  # 12 bytes: 6x uint16 in mm
+  sensor_distance:
+    length: 12
+    format: ">HHHHHH"
+    scale: 1000 # mm to m
+
+# -----------------------------------------------------------------------------
+# Error Codes
+# -----------------------------------------------------------------------------
+error_codes:
+  NONE: 0x00
+  INVALID_COMMAND: 0x01
+  INVALID_LENGTH: 0x02
+  CRC_ERROR: 0x03
+  TIMEOUT: 0x04
+  MOTOR_STALL: 0x10
+  MOTOR_OVERCURRENT: 0x11
+  KICKER_OVERVOLTAGE: 0x20
+  KICKER_TIMEOUT: 0x21
+  IMU_ERROR: 0x30
+  SERIAL_ERROR: 0x40
+  EMERGENCY_ACTIVE: 0xFF
+
+# -----------------------------------------------------------------------------
+# Timing Constraints
+# -----------------------------------------------------------------------------
+timing:
+  # Minimum interval between commands (ms)
+  min_command_interval: 10 # 100 Hz max
+
+  # Response timeout (ms)
+  response_timeout: 100
+
+  # Sensor data expected interval (ms)
+  sensor_interval: 20 # 50 Hz expected

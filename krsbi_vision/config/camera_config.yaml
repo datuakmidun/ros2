@@ -1,0 +1,133 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Camera Configuration
+# =============================================================================
+# Configuration for dual camera system: Front camera + Omni fisheye 360°
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Front Camera (Logitech Webcam)
+# -----------------------------------------------------------------------------
+front_camera:
+  enabled: true
+  device_id: 1 # /dev/video1
+  name: "front_camera"
+  frame_id: "front_camera_link"
+
+  # Resolution and framerate
+  width: 640
+  height: 480
+  fps: 30
+  format: "YUYV" # or MJPG for higher fps
+
+  # Auto settings
+  auto_exposure: true
+  auto_white_balance: true
+
+  # Manual adjustments (if auto disabled)
+  brightness: 128
+  contrast: 128
+  saturation: 128
+  exposure: -6 # log2, negative = faster
+
+  # Intrinsic calibration (from camera_calibration)
+  calibration:
+    fx: 554.25
+    fy: 554.25
+    cx: 320.0
+    cy: 240.0
+    k1: -0.1
+    k2: 0.05
+    p1: 0.0
+    p2: 0.0
+    k3: 0.0
+
+  # Field of view
+  fov_horizontal: 70.0 # degrees
+  fov_vertical: 55.0
+
+# -----------------------------------------------------------------------------
+# Omni Camera (Fisheye 360°)
+# -----------------------------------------------------------------------------
+omni_camera:
+  enabled: true
+  device_id: 0 # /dev/video0
+  name: "omni_camera"
+  frame_id: "omni_camera_link"
+
+  # Resolution and framerate
+  width: 640
+  height: 480
+  fps: 30
+  format: "YUYV"
+
+  # Auto settings
+  auto_exposure: true
+  auto_white_balance: true
+
+  # Fisheye specific
+  fisheye:
+    enabled: true
+    type: "equidistant" # or "equisolid"
+    fov: 220 # degrees (can exceed 180)
+
+    # Mirror position (center of omnidirectional mirror)
+    mirror_center_x: 320
+    mirror_center_y: 240
+
+    # Usable region (inner and outer radius)
+    inner_radius: 60 # pixels (blind spot)
+    outer_radius: 230 # pixels (max usable)
+
+    # Unwrapping parameters
+    unwrap:
+      enabled: true
+      output_width: 640
+      output_height: 120
+      angle_offset: 0.0 # degrees (front direction)
+
+  # Intrinsic calibration (fisheye model)
+  calibration:
+    fx: 200.0
+    fy: 200.0
+    cx: 320.0
+    cy: 240.0
+    # Fisheye distortion (k1, k2, k3, k4)
+    k1: 0.1
+    k2: 0.01
+    k3: 0.001
+    k4: 0.0
+
+# -----------------------------------------------------------------------------
+# Common Settings
+# -----------------------------------------------------------------------------
+common:
+  # Image processing
+  undistort: true
+  resize_for_processing: true
+  processing_width: 416 # For YOLO
+  processing_height: 416
+
+  # Color space
+  color_space: "BGR" # or RGB
+
+  # Debug
+  publish_debug_images: true
+  save_debug_frames: false
+  debug_frame_interval: 30 # Save every N frames
+
+# -----------------------------------------------------------------------------
+# Camera Synchronization
+# -----------------------------------------------------------------------------
+synchronization:
+  enabled: false # Hardware sync not available
+  software_sync: true
+  max_time_diff: 0.05 # seconds (50ms max between cameras)
+
+# -----------------------------------------------------------------------------
+# Recording
+# -----------------------------------------------------------------------------
+recording:
+  enabled: false
+  output_dir: "/tmp/krsbi_vision"
+  format: "mp4"
+  codec: "MJPG"

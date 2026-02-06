@@ -2,11 +2,31 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>krsbi_comm</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>1.0.0</version>
+  <description>Serial communication between Intel NUC and Arduino Mega for KRSBI-B Soccer Robot</description>
   <maintainer email="datuakmidun@gmail.com">datuakmidun</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Core dependencies -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+
+  <!-- Serial library -->
+  <exec_depend>python3-serial</exec_depend>
+
+  <!-- Package dependencies -->
+  <exec_depend>krsbi_msgs</exec_depend>
+  <exec_depend>krsbi_interface</exec_depend>
+
+  <!-- Launch -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <!-- Testing -->
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

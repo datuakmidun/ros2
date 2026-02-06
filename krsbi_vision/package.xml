@@ -2,11 +2,39 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>krsbi_vision</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>1.0.0</version>
+  <description>Computer vision package for KRSBI-B Soccer Robot with YOLOv8 and Kalman filter</description>
   <maintainer email="datuakmidun@gmail.com">datuakmidun</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Core ROS 2 -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+
+  <!-- Image handling -->
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+
+  <!-- Camera drivers -->
+  <exec_depend>usb_cam</exec_depend>
+
+  <!-- Package dependencies -->
+  <exec_depend>krsbi_msgs</exec_depend>
+  <exec_depend>krsbi_interface</exec_depend>
+
+  <!-- Python dependencies (installed via pip) -->
+  <!-- opencv-python, numpy, ultralytics (YOLO), scipy -->
+
+  <!-- Launch -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <!-- Testing -->
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

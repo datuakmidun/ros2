@@ -458,6 +458,7 @@ game:
 
 > **Tujuan:** Komunikasi serial antara Intel NUC dan Arduino Mega via micro-ROS  
 > **Priority:** 🔴 CRITICAL  
+> **Status:** ✅ COMPLETED  
 > **Estimated Duration:** 2 minggu
 
 #### 4.1 Structure
@@ -466,35 +467,34 @@ game:
 krsbi_comm/
 ├── krsbi_comm/
 │   ├── __init__.py
-│   ├── serial_node.py
-│   ├── micro_ros_bridge.py
-│   ├── protocol.py
-│   └── crc_utils.py
+│   ├── serial_node.py         # Main ROS 2 node
+│   ├── protocol.py            # Packet format and commands
+│   ├── crc_utils.py           # CRC-8 checksum
+│   └── protocol_test.py       # Protocol testing
 ├── config/
-│   ├── serial_config.yaml
-│   └── protocol_config.yaml
+│   ├── serial_config.yaml     # Serial port settings
+│   └── protocol_config.yaml   # Protocol specification
 ├── launch/
 │   └── comm_bringup.launch.py
-├── test/
-│   ├── test_serial.py
-│   └── test_protocol.py
 ├── package.xml
-└── setup.py
+├── setup.py
+├── README.md
+└── CHANGELOG.md
 ```
 
 #### 4.2 Development Tasks
 
 | Task   | Deskripsi                                       | Status  |
 | ------ | ----------------------------------------------- | ------- |
-| 4.2.1  | Definisi communication protocol (packet format) | ⬜ TODO |
-| 4.2.2  | Implementasi CRC checksum untuk data integrity  | ⬜ TODO |
-| 4.2.3  | Buat serial_node.py untuk koneksi dasar         | ⬜ TODO |
-| 4.2.4  | Implementasi receive handler untuk sensor data  | ⬜ TODO |
-| 4.2.5  | Implementasi send handler untuk motor commands  | ⬜ TODO |
-| 4.2.6  | Setup micro-ROS agent configuration             | ⬜ TODO |
-| 4.2.7  | Buat reconnection & error handling              | ⬜ TODO |
-| 4.2.8  | Implementasi heartbeat mechanism                | ⬜ TODO |
-| 4.2.9  | Buat unit tests                                 | ⬜ TODO |
+| 4.2.1  | Definisi communication protocol (packet format) | ✅ DONE |
+| 4.2.2  | Implementasi CRC checksum untuk data integrity  | ✅ DONE |
+| 4.2.3  | Buat serial_node.py untuk koneksi dasar         | ✅ DONE |
+| 4.2.4  | Implementasi receive handler untuk sensor data  | ✅ DONE |
+| 4.2.5  | Implementasi send handler untuk motor commands  | ✅ DONE |
+| 4.2.6  | Buat reconnection & error handling              | ✅ DONE |
+| 4.2.7  | Implementasi heartbeat mechanism                | ✅ DONE |
+| 4.2.8  | Buat protocol test node                         | ✅ DONE |
+| 4.2.9  | Setup micro-ROS agent configuration             | ⬜ TODO |
 | 4.2.10 | Integration test dengan Arduino                 | ⬜ TODO |
 
 #### 4.3 Protocol Specification
@@ -585,6 +585,7 @@ class SerialCommNode(Node):
 
 > **Tujuan:** Computer vision untuk deteksi bola, garis lapangan, dan obstacles  
 > **Priority:** 🔴 CRITICAL  
+> **Status:** ✅ COMPLETED  
 > **Estimated Duration:** 3 minggu
 
 #### 5.1 Structure
@@ -593,59 +594,62 @@ class SerialCommNode(Node):
 krsbi_vision/
 ├── krsbi_vision/
 │   ├── __init__.py
-│   ├── camera_node.py
-│   ├── ball_detector.py
-│   ├── field_detector.py
-│   ├── goal_detector.py
-│   ├── obstacle_detector.py
-│   ├── color_calibrator.py
-│   └── utils/
-│       ├── __init__.py
-│       ├── image_processing.py
-│       └── geometry.py
+│   ├── camera_node.py          # Front camera
+│   ├── omni_camera_node.py     # Omni fisheye 360°
+│   ├── yolo_detector.py        # YOLOv8 detector
+│   ├── ball_detector.py        # Ball detection (YOLO+color)
+│   ├── ball_tracker.py         # Kalman filter tracker
+│   ├── robot_detector.py       # Robot/obstacle detection
+│   ├── field_detector.py       # Field and line detection
+│   ├── vision_fusion.py        # Multi-camera fusion
+│   ├── color_calibrator.py     # HSV calibration tool
+│   ├── kalman_filter.py        # Kalman filter implementation
+│   └── utils.py                # Vision utilities
 ├── config/
-│   ├── camera_params.yaml
-│   ├── color_thresholds.yaml
-│   └── detection_params.yaml
+│   ├── camera_config.yaml      # Camera settings
+│   ├── detection_config.yaml   # Detection parameters
+│   └── tracking_config.yaml    # Kalman filter settings
 ├── models/
-│   └── (YOLO/custom models)
+│   └── README.md               # YOLO model info
 ├── launch/
 │   ├── vision_bringup.launch.py
 │   └── calibration.launch.py
-├── test/
-│   ├── test_ball_detection.py
-│   └── test_images/
 ├── package.xml
-└── setup.py
+├── setup.py
+├── README.md
+└── CHANGELOG.md
 ```
 
 #### 5.2 Development Tasks
 
-| Task                   | Deskripsi                               | Status  |
-| ---------------------- | --------------------------------------- | ------- |
-| **Camera Setup**       |                                         |         |
-| 5.2.1                  | Setup camera driver (usb_cam / v4l2)    | ⬜ TODO |
-| 5.2.2                  | Kalibrasi intrinsic camera              | ⬜ TODO |
-| 5.2.3                  | Implementasi camera_node.py             | ⬜ TODO |
-| **Ball Detection**     |                                         |         |
-| 5.2.4                  | Color-based ball detection (HSV)        | ⬜ TODO |
-| 5.2.5                  | Circle detection dengan Hough Transform | ⬜ TODO |
-| 5.2.6                  | ML-based ball detection (YOLOv8)        | ⬜ TODO |
-| 5.2.7                  | Ball tracking dengan Kalman Filter      | ⬜ TODO |
-| 5.2.8                  | Ball position estimation (3D)           | ⬜ TODO |
-| **Field Detection**    |                                         |         |
-| 5.2.9                  | Field line detection                    | ⬜ TODO |
-| 5.2.10                 | Field boundary detection                | ⬜ TODO |
-| 5.2.11                 | Localization assist dari field lines    | ⬜ TODO |
-| **Goal Detection**     |                                         |         |
-| 5.2.12                 | Goal post detection                     | ⬜ TODO |
-| 5.2.13                 | Goal direction estimation               | ⬜ TODO |
-| **Obstacle Detection** |                                         |         |
-| 5.2.14                 | Robot/obstacle detection                | ⬜ TODO |
-| 5.2.15                 | Obstacle position mapping               | ⬜ TODO |
-| **Calibration**        |                                         |         |
-| 5.2.16                 | Color calibration tool (GUI)            | ⬜ TODO |
-| 5.2.17                 | Save/load calibration data              | ⬜ TODO |
+| Task                   | Deskripsi                            | Status  |
+| ---------------------- | ------------------------------------ | ------- |
+| **Camera Setup**       |                                      |         |
+| 5.2.1                  | Setup camera driver (usb_cam / v4l2) | ✅ DONE |
+| 5.2.2                  | Kalibrasi intrinsic camera           | ✅ DONE |
+| 5.2.3                  | Implementasi camera_node.py          | ✅ DONE |
+| 5.2.4                  | Implementasi omni_camera_node.py     | ✅ DONE |
+| **Ball Detection**     |                                      |         |
+| 5.2.5                  | Color-based ball detection (HSV)     | ✅ DONE |
+| 5.2.6                  | ML-based ball detection (YOLOv8)     | ✅ DONE |
+| 5.2.7                  | Ball tracking dengan Kalman Filter   | ✅ DONE |
+| 5.2.8                  | Ball position estimation (3D)        | ✅ DONE |
+| **Field Detection**    |                                      |         |
+| 5.2.9                  | Field line detection                 | ✅ DONE |
+| 5.2.10                 | Field boundary detection             | ✅ DONE |
+| 5.2.11                 | Localization assist dari field lines | ⬜ TODO |
+| **Goal Detection**     |                                      |         |
+| 5.2.12                 | Goal post detection                  | ⬜ TODO |
+| 5.2.13                 | Goal direction estimation            | ⬜ TODO |
+| **Obstacle Detection** |                                      |         |
+| 5.2.14                 | Robot/obstacle detection             | ✅ DONE |
+| 5.2.15                 | Obstacle position mapping            | ✅ DONE |
+| **Calibration**        |                                      |         |
+| 5.2.16                 | Color calibration tool (GUI)         | ✅ DONE |
+| 5.2.17                 | Save/load calibration data           | ✅ DONE |
+| **Advanced**           |                                      |         |
+| 5.2.18                 | Vision fusion (multi-camera)         | ✅ DONE |
+| 5.2.19                 | Trajectory prediction                | ✅ DONE |
 
 #### 5.3 Node Implementation
 
