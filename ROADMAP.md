@@ -253,45 +253,49 @@ bool ready_to_kick                 # All safety checks passed
 
 > **Tujuan:** Definisi model robot (URDF) untuk visualisasi dan simulasi  
 > **Priority:** 🟡 MEDIUM  
+> **Status:** ✅ COMPLETED  
 > **Estimated Duration:** 1 minggu
 
 #### 2.1 Structure
 
 ```
 krsbi_description/
+├── krsbi_description/
+│   ├── __init__.py
+│   └── state_publisher.py      # Custom joint state publisher
 ├── urdf/
-│   ├── robot.urdf.xacro
-│   ├── materials.xacro
-│   └── sensors/
-│       ├── camera.xacro
-│       └── imu.xacro
-├── meshes/
-│   ├── base_link.stl
-│   ├── wheel.stl
-│   └── camera_mount.stl
+│   ├── robot.urdf.xacro        # Main robot description
+│   ├── materials.xacro         # Color definitions
+│   ├── properties.xacro        # Dimensions & inertia
+│   ├── wheel.xacro             # Omni wheel macro
+│   ├── sensors.xacro           # Cameras, IMU, distance sensors
+│   └── actuators.xacro         # Gripper and kicker
+├── config/
+│   ├── robot_params.yaml       # Robot parameters
+│   └── joint_limits.yaml       # Joint configuration
 ├── launch/
 │   ├── display.launch.py
-│   └── robot_state_publisher.launch.py
+│   ├── robot_state_publisher.launch.py
+│   └── view_frames.launch.py
 ├── rviz/
-│   └── robot_config.rviz
-├── config/
-│   └── joint_properties.yaml
-├── krsbi_description/
-│   └── __init__.py
+│   └── display.rviz
+├── meshes/                     # For CAD exports (placeholder)
 ├── package.xml
-└── setup.py
+├── setup.py
+├── README.md
+└── CHANGELOG.md
 ```
 
 #### 2.2 Development Tasks
 
 | Task  | Deskripsi                                    | Status  |
 | ----- | -------------------------------------------- | ------- |
-| 2.2.1 | Buat base URDF dengan dimensi robot          | ⬜ TODO |
-| 2.2.2 | Definisi wheels (3 omni-wheels)              | ⬜ TODO |
-| 2.2.3 | Tambahkan camera mount dan sensor positions  | ⬜ TODO |
-| 2.2.4 | Definisi collision geometry                  | ⬜ TODO |
-| 2.2.5 | Buat launch file untuk robot_state_publisher | ⬜ TODO |
-| 2.2.6 | Setup RViz config untuk visualisasi          | ⬜ TODO |
+| 2.2.1 | Buat base URDF dengan dimensi robot          | ✅ DONE |
+| 2.2.2 | Definisi wheels (3 omni-wheels)              | ✅ DONE |
+| 2.2.3 | Tambahkan camera mount dan sensor positions  | ✅ DONE |
+| 2.2.4 | Definisi collision geometry                  | ✅ DONE |
+| 2.2.5 | Buat launch file untuk robot_state_publisher | ✅ DONE |
+| 2.2.6 | Setup RViz config untuk visualisasi          | ✅ DONE |
 | 2.2.7 | Export meshes dari CAD (jika tersedia)       | ⬜ TODO |
 | 2.2.8 | Validasi URDF dengan `check_urdf`            | ⬜ TODO |
 

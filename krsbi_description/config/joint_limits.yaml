@@ -1,0 +1,72 @@
+# KRSBI-B Robot - Joint Limits Configuration
+
+# Wheel Joints (continuous rotation)
+front_wheel_joint:
+  type: continuous
+  axis: [0, 0, 1]
+  limits:
+    effort: 2.0 # Nm
+    velocity: 20.94 # rad/s (~200 RPM)
+
+rear_left_wheel_joint:
+  type: continuous
+  axis: [0, 0, 1]
+  limits:
+    effort: 2.0
+    velocity: 20.94
+
+rear_right_wheel_joint:
+  type: continuous
+  axis: [0, 0, 1]
+  limits:
+    effort: 2.0
+    velocity: 20.94
+
+# Gripper Joints (prismatic)
+gripper_left_joint:
+  type: prismatic
+  axis: [0, 1, 0]
+  limits:
+    lower: 0.0 # closed position
+    upper: 0.03 # open position (meters)
+    effort: 10.0 # N
+    velocity: 0.1 # m/s
+
+gripper_right_joint:
+  type: prismatic
+  axis: [0, -1, 0]
+  mimic:
+    joint: gripper_left_joint
+    multiplier: 1.0
+    offset: 0.0
+  limits:
+    lower: 0.0
+    upper: 0.03
+    effort: 10.0
+    velocity: 0.1
+
+# Kicker Joint (prismatic)
+kicker_joint:
+  type: prismatic
+  axis: [1, 0, 0]
+  limits:
+    lower: 0.0 # retracted
+    upper: 0.05 # extended (meters)
+    effort: 100.0 # N (high force for kicking)
+    velocity: 5.0 # m/s (fast kick action)
+
+# Joint State Publisher Settings
+joint_state_publisher:
+  rate: 50 # Hz
+  source_list: []
+
+# Joint State Publisher GUI Settings (for testing)
+joint_state_publisher_gui:
+  rate: 50
+  zeros:
+    front_wheel_joint: 0.0
+    rear_left_wheel_joint: 0.0
+    rear_right_wheel_joint: 0.0
+    gripper_left_joint: 0.015
+    gripper_right_joint: 0.015
+    kicker_joint: 0.0

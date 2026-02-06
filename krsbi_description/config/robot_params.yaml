@@ -1,0 +1,116 @@
+# KRSBI-B Robot - Configuration Parameters
+# Robot physical and operational parameters
+
+robot:
+  name: "krsbi_robot"
+  namespace: "krsbi"
+
+# Physical Dimensions
+dimensions:
+  base_radius: 0.20 # meters (40cm diameter)
+  base_height: 0.30 # meters
+  total_height: 0.40 # meters (including camera mount)
+  wheel_radius: 0.05 # meters (10cm diameter)
+  wheel_width: 0.04 # meters
+  wheel_base_distance: 0.17 # meters from center to wheel
+
+# Mass Properties (estimated)
+mass:
+  total: 10.0 # kg
+  base: 8.0 # kg
+  wheel: 0.3 # kg per wheel
+  camera: 0.1 # kg
+  gripper: 0.25 # kg
+  kicker: 0.3 # kg
+
+# Wheel Configuration (3-wheel omni)
+wheels:
+  type: "omni_3"
+  count: 3
+  angles: # degrees from front (X-axis)
+    front: 0
+    rear_left: 120
+    rear_right: 240
+  max_rpm: 200
+  max_velocity: 1.0 # m/s at wheel
+
+# Motor Properties (PG45)
+motors:
+  type: "PG45"
+  gear_ratio: 45
+  encoder_ppr: 11 # Pulses per revolution (before gear)
+  encoder_cpr: 1980 # Counts per revolution (11 * 45 * 4)
+  max_current: 3.0 # Ampere
+  driver: "BTS7960"
+
+# Camera Configuration
+cameras:
+  omni:
+    name: "omni_camera"
+    type: "fisheye_360"
+    resolution: [640, 480]
+    fps: 30
+    fov: 360 # degrees
+    position: [0.0, 0.0, 0.35]
+  front:
+    name: "front_camera"
+    type: "logitech_webcam"
+    model: "C920" # or similar
+    resolution: [640, 480]
+    fps: 30
+    fov: 78 # degrees
+    position: [0.18, 0.0, 0.25]
+    pitch: 11.5 # degrees (downward tilt)
+
+# IMU Configuration
+imu:
+  type: "MPU6050" # or "BNO055"
+  position: [0.0, 0.0, 0.15]
+  update_rate: 100 # Hz
+
+# Distance Sensors (Sharp GP)
+distance_sensors:
+  type: "GP2Y0A21" # 10-80cm
+  count: 6
+  min_range: 0.10 # meters
+  max_range: 0.80 # meters
+  update_rate: 40 # Hz
+  positions:
+    front: { x: 0.20, y: 0.0, yaw: 0 }
+    front_left: { x: 0.14, y: 0.14, yaw: 45 }
+    front_right: { x: 0.14, y: -0.14, yaw: -45 }
+    left: { x: 0.0, y: 0.20, yaw: 90 }
+    right: { x: 0.0, y: -0.20, yaw: -90 }
+    rear: { x: -0.20, y: 0.0, yaw: 180 }
+
+# Gripper Configuration
+gripper:
+  driver: "BTS7960"
+  max_opening: 0.12 # meters
+  grip_force: 10 # Newton (estimated)
+  has_ball_sensor: true
+
+# Kicker Configuration
+kicker:
+  type: "solenoid"
+  capacitor_voltage: 200 # Volts (max)
+  charge_time: 5.0 # seconds (to full charge)
+  max_extension: 0.05 # meters
+  relay_count: 2
+  power_levels:
+    low: 0.3 # 30% power
+    medium: 0.6 # 60% power
+    high: 0.9 # 90% power
+    max: 1.0 # 100% power
+
+# TF Frame Configuration
+frames:
+  base_frame: "base_footprint"
+  odom_frame: "odom"
+  map_frame: "map"
+
+# Publish Rates
+publish_rates:
+  robot_state: 50 # Hz
+  joint_state: 50 # Hz
+  tf: 50 # Hz

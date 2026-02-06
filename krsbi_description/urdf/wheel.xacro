@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- 
+  KRSBI-B Robot - Omni Wheel Macro
+  
+  3-wheel omni-directional configuration:
+  - M1 (front): 0° from X-axis
+  - M2 (rear-left): 120° from X-axis  
+  - M3 (rear-right): 240° from X-axis
+  
+  Each wheel uses continuous joint for rotation
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wheel">
+
+  <!-- ==================== OMNI WHEEL MACRO ==================== -->
+  <xacro:macro name="omni_wheel" params="name parent x y z angle">
+    
+    <!-- Wheel joint - continuous rotation -->
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+      <origin xyz="${x} ${y} ${z}" rpy="${-pi/2} 0 ${angle}"/>
+      <axis xyz="0 0 1"/>
+      <dynamics damping="0.1" friction="0.1"/>
+      <limit effort="${motor_max_torque}" velocity="${motor_max_rpm * 2 * pi / 60}"/>
+    </joint>
+
+    <!-- Wheel link -->
+    <link name="${name}_link">
+      <visual>
+        <!-- Main wheel body -->
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="wheel"/>
+      </visual>
+      
+      <collision>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:cylinder_inertia m="${wheel_mass}" r="${wheel_radius}" h="${wheel_width}"/>
+      </inertial>
+    </link>
+
+    <!-- Motor housing (visual only) -->
+    <joint name="${name}_motor_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${name}_motor_link"/>
+      <origin xyz="${x * 0.7} ${y * 0.7} ${z}" rpy="0 0 ${angle}"/>
+    </joint>
+
+    <link name="${name}_motor_link">
+      <visual>
+        <geometry>
+          <cylinder radius="0.025" length="0.06"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <material name="sensor"/>
+      </visual>
+    </link>
+
+    <!-- Gazebo friction properties -->
+    <gazebo reference="${name}_link">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+      <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

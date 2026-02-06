@@ -1,0 +1,313 @@
+<?xml version="1.0"?>
+<!-- 
+  KRSBI-B Robot - Sensor Definitions
+  
+  Sensors:
+  - Omni camera (fisheye 360°)
+  - Front camera (Logitech webcam)
+  - IMU sensor
+  - Sharp GP distance sensors
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sensors">
+
+  <!-- ==================== OMNI CAMERA (FISHEYE 360°) ==================== -->
+  <xacro:macro name="omni_camera" params="parent">
+    
+    <!-- Camera mount pole -->
+    <joint name="omni_camera_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="omni_camera_mount_link"/>
+      <origin xyz="0 0 ${base_height}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="omni_camera_mount_link">
+      <visual>
+        <geometry>
+          <cylinder radius="0.01" length="${omni_camera_z - base_height}"/>
+        </geometry>
+        <origin xyz="0 0 ${(omni_camera_z - base_height)/2}" rpy="0 0 0"/>
+        <material name="sensor"/>
+      </visual>
+    </link>
+
+    <!-- Omni camera body -->
+    <joint name="omni_camera_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="omni_camera_link"/>
+      <origin xyz="0 0 ${omni_camera_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="omni_camera_link">
+      <visual>
+        <!-- Camera dome -->
+        <geometry>
+          <sphere radius="${omni_camera_radius}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="camera_lens"/>
+      </visual>
+      <visual>
+        <!-- Camera base -->
+        <geometry>
+          <cylinder radius="${omni_camera_radius + 0.005}" length="0.015"/>
+        </geometry>
+        <origin xyz="0 0 -${omni_camera_radius/2}" rpy="0 0 0"/>
+        <material name="camera"/>
+      </visual>
+      <collision>
+        <geometry>
+          <sphere radius="${omni_camera_radius}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.05"/>
+        <xacro:sphere_inertia m="0.05" r="${omni_camera_radius}"/>
+      </inertial>
+    </link>
+
+    <!-- Optical frame (Z forward, X right, Y down - camera convention) -->
+    <joint name="omni_camera_optical_joint" type="fixed">
+      <parent link="omni_camera_link"/>
+      <child link="omni_camera_optical_frame"/>
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+
+    <link name="omni_camera_optical_frame"/>
+
+    <!-- Gazebo camera plugin -->
+    <gazebo reference="omni_camera_link">
+      <sensor type="camera" name="omni_camera">
+        <always_on>true</always_on>
+        <update_rate>30.0</update_rate>
+        <camera name="omni">
+          <horizontal_fov>${omni_camera_fov}</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>10.0</far>
+          </clip>
+        </camera>
+        <plugin name="omni_camera_controller" filename="libgazebo_ros_camera.so">
+          <ros>
+            <namespace>/krsbi</namespace>
+            <remapping>image_raw:=omni_camera/image_raw</remapping>
+            <remapping>camera_info:=omni_camera/camera_info</remapping>
+          </ros>
+          <camera_name>omni_camera</camera_name>
+          <frame_name>omni_camera_optical_frame</frame_name>
+        </plugin>
+      </sensor>
+      <material>Gazebo/Blue</material>
+    </gazebo>
+
+  </xacro:macro>
+
+  <!-- ==================== FRONT CAMERA (LOGITECH WEBCAM) ==================== -->
+  <xacro:macro name="front_camera" params="parent">
+    
+    <!-- Camera body -->
+    <joint name="front_camera_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="front_camera_link"/>
+      <!-- Positioned at front, slightly tilted down -->
+      <origin xyz="${front_camera_x} 0 ${front_camera_z}" rpy="0 ${front_camera_pitch} 0"/>
+    </joint>
+
+    <link name="front_camera_link">
+      <visual>
+        <!-- Camera body -->
+        <geometry>
+          <box size="${front_camera_depth} ${front_camera_width} ${front_camera_height}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="camera"/>
+      </visual>
+      <visual>
+        <!-- Lens -->
+        <geometry>
+          <cylinder radius="0.008" length="0.005"/>
+        </geometry>
+        <origin xyz="${front_camera_depth/2 + 0.002} 0 0" rpy="0 ${pi/2} 0"/>
+        <material name="camera_lens"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${front_camera_depth} ${front_camera_width} ${front_camera_height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.08"/>
+        <xacro:box_inertia m="0.08" x="${front_camera_depth}" y="${front_camera_width}" z="${front_camera_height}"/>
+      </inertial>
+    </link>
+
+    <!-- Optical frame -->
+    <joint name="front_camera_optical_joint" type="fixed">
+      <parent link="front_camera_link"/>
+      <child link="front_camera_optical_frame"/>
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+
+    <link name="front_camera_optical_frame"/>
+
+    <!-- Gazebo camera plugin -->
+    <gazebo reference="front_camera_link">
+      <sensor type="camera" name="front_camera">
+        <always_on>true</always_on>
+        <update_rate>30.0</update_rate>
+        <camera name="front">
+          <horizontal_fov>${front_camera_fov}</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>10.0</far>
+          </clip>
+        </camera>
+        <plugin name="front_camera_controller" filename="libgazebo_ros_camera.so">
+          <ros>
+            <namespace>/krsbi</namespace>
+            <remapping>image_raw:=front_camera/image_raw</remapping>
+            <remapping>camera_info:=front_camera/camera_info</remapping>
+          </ros>
+          <camera_name>front_camera</camera_name>
+          <frame_name>front_camera_optical_frame</frame_name>
+        </plugin>
+      </sensor>
+      <material>Gazebo/Black</material>
+    </gazebo>
+
+  </xacro:macro>
+
+  <!-- ==================== IMU SENSOR ==================== -->
+  <xacro:macro name="imu_sensor" params="parent">
+    
+    <joint name="imu_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="imu_link"/>
+      <origin xyz="0 0 ${imu_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="imu_link">
+      <visual>
+        <geometry>
+          <box size="${imu_size} ${imu_size} ${imu_size * 0.3}"/>
+        </geometry>
+        <material name="electronics"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${imu_size} ${imu_size} ${imu_size * 0.3}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.01"/>
+        <xacro:box_inertia m="0.01" x="${imu_size}" y="${imu_size}" z="${imu_size * 0.3}"/>
+      </inertial>
+    </link>
+
+    <!-- Gazebo IMU plugin -->
+    <gazebo reference="imu_link">
+      <gravity>true</gravity>
+      <sensor name="imu_sensor" type="imu">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0.0</mean><stddev>0.0002</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0.0</mean><stddev>0.0002</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0.0</mean><stddev>0.0002</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0.0</mean><stddev>0.017</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0.0</mean><stddev>0.017</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0.0</mean><stddev>0.017</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+        <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+          <ros>
+            <namespace>/krsbi</namespace>
+            <remapping>~/out:=imu/data</remapping>
+          </ros>
+          <frame_name>imu_link</frame_name>
+        </plugin>
+      </sensor>
+      <material>Gazebo/Green</material>
+    </gazebo>
+
+  </xacro:macro>
+
+  <!-- ==================== DISTANCE SENSOR (SHARP GP) ==================== -->
+  <xacro:macro name="distance_sensor" params="name parent x y z yaw">
+    
+    <joint name="distance_${name}_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="distance_${name}_link"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 ${yaw}"/>
+    </joint>
+
+    <link name="distance_${name}_link">
+      <visual>
+        <geometry>
+          <box size="${distance_sensor_length} ${distance_sensor_width} ${distance_sensor_height}"/>
+        </geometry>
+        <material name="sensor"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${distance_sensor_length} ${distance_sensor_width} ${distance_sensor_height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.005"/>
+        <xacro:box_inertia m="0.005" x="${distance_sensor_length}" y="${distance_sensor_width}" z="${distance_sensor_height}"/>
+      </inertial>
+    </link>
+
+    <!-- Gazebo range sensor plugin -->
+    <gazebo reference="distance_${name}_link">
+      <sensor type="ray" name="distance_${name}">
+        <always_on>true</always_on>
+        <update_rate>40</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>0</min_angle>
+              <max_angle>0</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${distance_sensor_min_range}</min>
+            <max>${distance_sensor_max_range}</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="distance_${name}_controller" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <namespace>/krsbi</namespace>
+            <remapping>~/out:=distance/${name}</remapping>
+          </ros>
+          <output_type>sensor_msgs/Range</output_type>
+          <frame_name>distance_${name}_link</frame_name>
+        </plugin>
+      </sensor>
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

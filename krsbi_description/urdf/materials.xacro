@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!-- 
+  KRSBI-B Robot - Material Definitions
+  Color and visual properties for robot components
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="materials">
+
+  <!-- Primary robot body color - Dark blue -->
+  <material name="robot_body">
+    <color rgba="0.1 0.2 0.4 1.0"/>
+  </material>
+
+  <!-- Secondary accent color - Light blue -->
+  <material name="robot_accent">
+    <color rgba="0.3 0.5 0.8 1.0"/>
+  </material>
+
+  <!-- Wheel color - Dark gray -->
+  <material name="wheel">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+
+  <!-- Wheel roller color - Light gray -->
+  <material name="wheel_roller">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+
+  <!-- Camera housing - Black -->
+  <material name="camera">
+    <color rgba="0.05 0.05 0.05 1.0"/>
+  </material>
+
+  <!-- Camera lens - Glass blue -->
+  <material name="camera_lens">
+    <color rgba="0.1 0.3 0.5 0.8"/>
+  </material>
+
+  <!-- Sensor housing - Dark gray -->
+  <material name="sensor">
+    <color rgba="0.15 0.15 0.15 1.0"/>
+  </material>
+
+  <!-- Gripper - Metallic gray -->
+  <material name="gripper">
+    <color rgba="0.4 0.4 0.45 1.0"/>
+  </material>
+
+  <!-- Gripper pad - Rubber black -->
+  <material name="gripper_pad">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+
+  <!-- Kicker - Metallic copper -->
+  <material name="kicker">
+    <color rgba="0.7 0.4 0.2 1.0"/>
+  </material>
+
+  <!-- Electronics - Green PCB -->
+  <material name="electronics">
+    <color rgba="0.1 0.4 0.2 1.0"/>
+  </material>
+
+  <!-- Warning/Indicator - Orange -->
+  <material name="warning">
+    <color rgba="1.0 0.5 0.0 1.0"/>
+  </material>
+
+  <!-- Ball reference - Orange -->
+  <material name="ball">
+    <color rgba="1.0 0.4 0.0 1.0"/>
+  </material>
+
+</robot>

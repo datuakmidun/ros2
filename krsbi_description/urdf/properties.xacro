@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<!-- 
+  KRSBI-B Robot - Physical Properties and Constants
+  
+  Robot Specifications:
+  - 3-wheel omni-directional
+  - Cylindrical base
+  - Dual camera system
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="properties">
+
+  <!-- ==================== MATH CONSTANTS ==================== -->
+  <xacro:property name="pi" value="3.14159265359"/>
+  <xacro:property name="cos_60" value="0.5"/>
+  <xacro:property name="sin_60" value="0.866025403784"/>
+  <xacro:property name="cos_45" value="0.707106781187"/>
+  <xacro:property name="sin_45" value="0.707106781187"/>
+
+  <!-- ==================== BASE PROPERTIES ==================== -->
+  <!-- Main body dimensions -->
+  <xacro:property name="base_radius" value="0.20"/>        <!-- 40cm diameter -->
+  <xacro:property name="base_height" value="0.30"/>        <!-- 30cm height -->
+  <xacro:property name="base_mass" value="8.0"/>           <!-- kg, estimated -->
+
+  <!-- ==================== WHEEL PROPERTIES ==================== -->
+  <!-- PG45 motor with omni wheel -->
+  <xacro:property name="wheel_radius" value="0.05"/>       <!-- 10cm diameter -->
+  <xacro:property name="wheel_width" value="0.04"/>        <!-- 4cm width -->
+  <xacro:property name="wheel_mass" value="0.3"/>          <!-- kg per wheel -->
+  <xacro:property name="wheel_base_distance" value="0.17"/> <!-- Distance from center to wheel -->
+
+  <!-- Motor properties (PG45) -->
+  <xacro:property name="motor_max_rpm" value="200"/>
+  <xacro:property name="motor_max_torque" value="2.0"/>    <!-- Nm -->
+
+  <!-- ==================== CAMERA PROPERTIES ==================== -->
+  <!-- Omni camera (fisheye 360°) -->
+  <xacro:property name="omni_camera_radius" value="0.03"/>
+  <xacro:property name="omni_camera_height" value="0.04"/>
+  <xacro:property name="omni_camera_z" value="0.35"/>      <!-- Height from base_link -->
+  <xacro:property name="omni_camera_fov" value="${2*pi}"/> <!-- 360 degrees -->
+
+  <!-- Front camera (Logitech webcam) -->
+  <xacro:property name="front_camera_width" value="0.08"/>
+  <xacro:property name="front_camera_height" value="0.03"/>
+  <xacro:property name="front_camera_depth" value="0.03"/>
+  <xacro:property name="front_camera_x" value="0.18"/>     <!-- Forward from center -->
+  <xacro:property name="front_camera_z" value="0.25"/>     <!-- Height from base_link -->
+  <xacro:property name="front_camera_pitch" value="0.2"/>  <!-- Slight downward tilt (rad) -->
+  <xacro:property name="front_camera_fov" value="1.36"/>   <!-- ~78 degrees -->
+
+  <!-- ==================== SENSOR PROPERTIES ==================== -->
+  <!-- IMU -->
+  <xacro:property name="imu_size" value="0.025"/>          <!-- 2.5cm cube -->
+  <xacro:property name="imu_z" value="0.15"/>              <!-- Height from base_link -->
+
+  <!-- Sharp GP distance sensor -->
+  <xacro:property name="distance_sensor_length" value="0.04"/>
+  <xacro:property name="distance_sensor_width" value="0.015"/>
+  <xacro:property name="distance_sensor_height" value="0.02"/>
+  <xacro:property name="distance_sensor_min_range" value="0.10"/>  <!-- 10cm -->
+  <xacro:property name="distance_sensor_max_range" value="0.80"/>  <!-- 80cm -->
+
+  <!-- ==================== ACTUATOR PROPERTIES ==================== -->
+  <!-- Gripper -->
+  <xacro:property name="gripper_width" value="0.15"/>      <!-- Total width when open -->
+  <xacro:property name="gripper_depth" value="0.08"/>      <!-- Depth of gripper arms -->
+  <xacro:property name="gripper_height" value="0.05"/>     <!-- Height of gripper -->
+  <xacro:property name="gripper_x" value="0.18"/>          <!-- Forward from center -->
+  <xacro:property name="gripper_z" value="0.05"/>          <!-- Height from base_link -->
+
+  <!-- Kicker -->
+  <xacro:property name="kicker_width" value="0.10"/>       <!-- Width of kicker plate -->
+  <xacro:property name="kicker_height" value="0.04"/>      <!-- Height of kicker plate -->
+  <xacro:property name="kicker_depth" value="0.02"/>       <!-- Thickness -->
+  <xacro:property name="kicker_x" value="0.19"/>           <!-- Forward from center -->
+  <xacro:property name="kicker_z" value="0.03"/>           <!-- Height from base_link -->
+  <xacro:property name="kicker_max_extension" value="0.05"/> <!-- Max travel distance -->
+
+  <!-- ==================== INERTIA MACROS ==================== -->
+  <!-- Cylinder inertia (for base) -->
+  <xacro:macro name="cylinder_inertia" params="m r h">
+    <inertia 
+      ixx="${(1/12)*m*(3*r*r + h*h)}"
+      ixy="0" ixz="0"
+      iyy="${(1/12)*m*(3*r*r + h*h)}"
+      iyz="0"
+      izz="${(1/2)*m*r*r}"/>
+  </xacro:macro>
+
+  <!-- Sphere inertia (for wheels approximation) -->
+  <xacro:macro name="sphere_inertia" params="m r">
+    <inertia 
+      ixx="${(2/5)*m*r*r}"
+      ixy="0" ixz="0"
+      iyy="${(2/5)*m*r*r}"
+      iyz="0"
+      izz="${(2/5)*m*r*r}"/>
+  </xacro:macro>
+
+  <!-- Box inertia (for sensors) -->
+  <xacro:macro name="box_inertia" params="m x y z">
+    <inertia 
+      ixx="${(1/12)*m*(y*y + z*z)}"
+      ixy="0" ixz="0"
+      iyy="${(1/12)*m*(x*x + z*z)}"
+      iyz="0"
+      izz="${(1/12)*m*(x*x + y*y)}"/>
+  </xacro:macro>
+
+</robot>

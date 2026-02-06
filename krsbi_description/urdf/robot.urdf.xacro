@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<!-- 
+  KRSBI-B Soccer Robot - Main URDF Description
+  
+  Robot Configuration:
+  - 3-wheel omni-directional drive
+  - Dual camera system (omni fisheye + front webcam)
+  - Gripper for ball handling
+  - Kicker mechanism
+  - Sharp GP distance sensors
+  - IMU sensor
+  
+  Coordinate System:
+  - X: Forward (positive = front of robot)
+  - Y: Left (positive = left side)
+  - Z: Up (positive = upward)
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="krsbi_robot">
+
+  <!-- Include component files -->
+  <xacro:include filename="$(find krsbi_description)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find krsbi_description)/urdf/properties.xacro"/>
+  <xacro:include filename="$(find krsbi_description)/urdf/wheel.xacro"/>
+  <xacro:include filename="$(find krsbi_description)/urdf/sensors.xacro"/>
+  <xacro:include filename="$(find krsbi_description)/urdf/actuators.xacro"/>
+
+  <!-- ==================== BASE LINK ==================== -->
+  <!-- Base footprint - on the ground -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Main robot body -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder radius="${base_radius}" length="${base_height}"/>
+      </geometry>
+      <origin xyz="0 0 ${base_height/2}" rpy="0 0 0"/>
+      <material name="robot_body"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="${base_radius}" length="${base_height}"/>
+      </geometry>
+      <origin xyz="0 0 ${base_height/2}" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="${base_mass}"/>
+      <origin xyz="0 0 ${base_height/2}" rpy="0 0 0"/>
+      <inertia 
+        ixx="${(1/12)*base_mass*(3*base_radius*base_radius + base_height*base_height)}"
+        ixy="0" ixz="0"
+        iyy="${(1/12)*base_mass*(3*base_radius*base_radius + base_height*base_height)}"
+        iyz="0"
+        izz="${(1/2)*base_mass*base_radius*base_radius}"/>
+    </inertial>
+  </link>
+
+  <!-- ==================== WHEELS ==================== -->
+  <!-- 3-wheel omni configuration:
+       M1 (front): 0° from X-axis
+       M2 (rear-left): 120° from X-axis  
+       M3 (rear-right): 240° from X-axis
+  -->
+  
+  <!-- Front wheel (M1) -->
+  <xacro:omni_wheel 
+    name="front_wheel" 
+    parent="base_link"
+    x="${wheel_base_distance}" 
+    y="0" 
+    z="0"
+    angle="0"/>
+
+  <!-- Rear-left wheel (M2) -->
+  <xacro:omni_wheel 
+    name="rear_left_wheel" 
+    parent="base_link"
+    x="${-wheel_base_distance * cos_60}" 
+    y="${wheel_base_distance * sin_60}" 
+    z="0"
+    angle="${pi * 2/3}"/>
+
+  <!-- Rear-right wheel (M3) -->
+  <xacro:omni_wheel 
+    name="rear_right_wheel" 
+    parent="base_link"
+    x="${-wheel_base_distance * cos_60}" 
+    y="${-wheel_base_distance * sin_60}" 
+    z="0"
+    angle="${pi * 4/3}"/>
+
+  <!-- ==================== SENSORS ==================== -->
+  
+  <!-- Omni Camera (Fisheye 360°) - Top center -->
+  <xacro:omni_camera parent="base_link"/>
+  
+  <!-- Front Camera (Logitech Webcam) - Front facing -->
+  <xacro:front_camera parent="base_link"/>
+  
+  <!-- IMU Sensor - Center of robot -->
+  <xacro:imu_sensor parent="base_link"/>
+  
+  <!-- Sharp GP Distance Sensors -->
+  <xacro:distance_sensor name="front" parent="base_link" 
+    x="${base_radius - 0.02}" y="0" z="${base_height/2}" yaw="0"/>
+  <xacro:distance_sensor name="front_left" parent="base_link" 
+    x="${(base_radius - 0.02) * cos_45}" y="${(base_radius - 0.02) * sin_45}" z="${base_height/2}" yaw="${pi/4}"/>
+  <xacro:distance_sensor name="front_right" parent="base_link" 
+    x="${(base_radius - 0.02) * cos_45}" y="${-(base_radius - 0.02) * sin_45}" z="${base_height/2}" yaw="${-pi/4}"/>
+  <xacro:distance_sensor name="left" parent="base_link" 
+    x="0" y="${base_radius - 0.02}" z="${base_height/2}" yaw="${pi/2}"/>
+  <xacro:distance_sensor name="right" parent="base_link" 
+    x="0" y="${-(base_radius - 0.02)}" z="${base_height/2}" yaw="${-pi/2}"/>
+  <xacro:distance_sensor name="rear" parent="base_link" 
+    x="${-(base_radius - 0.02)}" y="0" z="${base_height/2}" yaw="${pi}"/>
+
+  <!-- ==================== ACTUATORS ==================== -->
+  
+  <!-- Gripper -->
+  <xacro:gripper parent="base_link"/>
+  
+  <!-- Kicker -->
+  <xacro:kicker parent="base_link"/>
+
+</robot>
