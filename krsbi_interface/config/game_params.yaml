@@ -1,0 +1,235 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Game Parameters
+# =============================================================================
+# Field dimensions, game rules, and competition-specific settings
+# Based on KRSBI-B (RoboCup Middle Size League) regulations
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Field Dimensions (meters)
+# -----------------------------------------------------------------------------
+field:
+  # Main field
+  length: 9.0 # meters (A)
+  width: 6.0 # meters (B)
+
+  # Goal
+  goal_width: 2.6 # meters
+  goal_depth: 0.5 # meters
+  goal_height: 1.0 # meters
+  goal_area_length: 0.75 # meters
+  goal_area_width: 3.5 # meters
+
+  # Penalty area
+  penalty_area_length: 1.5 # meters
+  penalty_area_width: 4.0 # meters
+  penalty_mark_distance: 1.5 # meters from goal line
+
+  # Center
+  center_circle_radius: 0.75 # meters
+  center_spot_radius: 0.05 # meters
+
+  # Lines
+  line_width: 0.05 # meters
+
+  # Corner arc
+  corner_arc_radius: 0.05 # meters
+
+  # Safety margin
+  margin: 0.5 # meters (outside field)
+
+# -----------------------------------------------------------------------------
+# Field Coordinates (origin at field center)
+# -----------------------------------------------------------------------------
+coordinates:
+  # Our goal (blue team attacking yellow goal)
+  our_goal:
+    center: [-4.5, 0.0]
+    left_post: [-4.5, 1.3]
+    right_post: [-4.5, -1.3]
+
+  # Opponent goal
+  opponent_goal:
+    center: [4.5, 0.0]
+    left_post: [4.5, 1.3]
+    right_post: [4.5, -1.3]
+
+  # Penalty spots
+  our_penalty_spot: [-3.0, 0.0]
+  opponent_penalty_spot: [3.0, 0.0]
+
+  # Corners
+  corners:
+    - [4.5, 3.0] # top right
+    - [4.5, -3.0] # bottom right
+    - [-4.5, -3.0] # bottom left
+    - [-4.5, 3.0] # top left
+
+# -----------------------------------------------------------------------------
+# Game Timing
+# -----------------------------------------------------------------------------
+timing:
+  # Match duration
+  half_duration: 600 # seconds (10 minutes)
+  half_time_break: 300 # seconds (5 minutes)
+  overtime_duration: 300 # seconds (5 minutes)
+
+  # Set plays
+  kickoff_time: 10 # seconds
+  freekick_time: 10 # seconds
+  penalty_time: 30 # seconds
+  throw_in_time: 10 # seconds
+  corner_time: 10 # seconds
+  goal_kick_time: 10 # seconds
+
+  # Other
+  substitution_time: 60 # seconds
+
+# -----------------------------------------------------------------------------
+# Teams & Robots
+# -----------------------------------------------------------------------------
+teams:
+  max_robots: 4 # Per team on field
+  max_substitutes: 2 # On bench
+
+  # Robot specifications
+  robot:
+    max_height: 0.80 # meters
+    max_diameter: 0.52 # meters
+    max_weight: 40 # kg
+
+  # Ball
+  ball:
+    diameter: 0.065 # meters (6.5cm, size 1)
+    weight: 0.20 # kg (200g)
+    color: "orange"
+
+# -----------------------------------------------------------------------------
+# Game States (from GameController)
+# -----------------------------------------------------------------------------
+game_states:
+  # Main states
+  INITIAL: 0
+  READY: 1
+  SET: 2
+  PLAYING: 3
+  FINISHED: 4
+
+  # Secondary states (set plays)
+  NORMAL: 0
+  KICKOFF: 1
+  FREEKICK: 2
+  PENALTY: 3
+  CORNER: 4
+  THROW_IN: 5
+  GOAL_KICK: 6
+  DROPPED_BALL: 7
+
+# -----------------------------------------------------------------------------
+# Penalties
+# -----------------------------------------------------------------------------
+penalties:
+  # Penalty types
+  NONE: 0
+  BALL_MANIPULATION: 1
+  PHYSICAL_CONTACT: 2
+  ILLEGAL_ATTACK: 3
+  ILLEGAL_DEFENSE: 4
+  PICKUP_BALL: 5
+  PUSHING: 6
+  LEAVING_FIELD: 7
+  MOTION_IN_SET: 8
+  INACTIVE: 9
+  ILLEGAL_POSITION: 10
+
+  # Penalty duration
+  standard_duration: 30 # seconds
+
+# -----------------------------------------------------------------------------
+# Role Definitions
+# -----------------------------------------------------------------------------
+roles:
+  goalkeeper:
+    priority: 1
+    default_position: [-3.5, 0.0]
+    area: "goal_area"
+    can_kick: true
+
+  striker:
+    priority: 2
+    default_position: [2.0, 0.0]
+    area: "attack"
+    can_kick: true
+
+  defender:
+    priority: 3
+    default_position: [-2.0, 0.0]
+    area: "defense"
+    can_kick: true
+
+  support:
+    priority: 4
+    default_position: [0.0, 2.0]
+    area: "midfield"
+    can_kick: true
+
+# -----------------------------------------------------------------------------
+# Strategy Zones
+# -----------------------------------------------------------------------------
+zones:
+  # Defense zone (our half)
+  defense:
+    x_min: -4.5
+    x_max: 0.0
+    y_min: -3.0
+    y_max: 3.0
+
+  # Attack zone (opponent half)
+  attack:
+    x_min: 0.0
+    x_max: 4.5
+    y_min: -3.0
+    y_max: 3.0
+
+  # Goal area (where goalkeeper operates)
+  goal_area:
+    x_min: -4.5
+    x_max: -3.0
+    y_min: -2.0
+    y_max: 2.0
+
+  # Danger zone (near our goal)
+  danger:
+    x_min: -4.5
+    x_max: -2.0
+    y_min: -3.0
+    y_max: 3.0
+
+  # Scoring zone (good shooting position)
+  scoring:
+    x_min: 2.0
+    x_max: 4.0
+    y_min: -2.0
+    y_max: 2.0
+
+# -----------------------------------------------------------------------------
+# GameController Communication
+# -----------------------------------------------------------------------------
+game_controller:
+  enabled: true
+  multicast_address: "224.5.23.1"
+  port: 3838
+  team_port_offset: 0
+
+  # Packet handling
+  timeout: 2.0 # seconds
+  retry_interval: 0.5 # seconds
+
+# -----------------------------------------------------------------------------
+# Team Communication (optional)
+# -----------------------------------------------------------------------------
+team_comm:
+  enabled: false
+  multicast_address: "224.5.23.2"
+  port: 3939
+  update_rate: 10 # Hz

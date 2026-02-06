@@ -1,0 +1,136 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Main Robot Parameters
+# =============================================================================
+# This file contains all robot-specific configuration parameters
+#
+# Usage:
+#   ros2 launch krsbi_interface robot_bringup.launch.py
+#   ros2 param get /krsbi/robot_id
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Robot Identity
+# -----------------------------------------------------------------------------
+robot:
+  robot_id: 1 # Robot number (1-4)
+  team_id: 1 # Team ID for GameController
+  team_color: "blue" # "blue" or "yellow"
+  role: "striker" # "striker", "goalkeeper", "defender", "support"
+
+# -----------------------------------------------------------------------------
+# Hardware Configuration
+# -----------------------------------------------------------------------------
+hardware:
+  # Serial communication with Arduino
+  serial:
+    port: "/dev/ttyUSB0" # Linux: /dev/ttyUSB0, Windows: COM3
+    baudrate: 115200
+    timeout: 0.1 # seconds
+    reconnect_interval: 2.0 # seconds
+
+  # Intel NUC specs
+  compute:
+    type: "Intel NUC"
+    cores: 4
+    ram_gb: 8
+
+  # Arduino Mega specs
+  microcontroller:
+    type: "Arduino Mega 2560"
+    frequency_hz: 16000000
+    serial_buffer: 256
+
+# -----------------------------------------------------------------------------
+# Motion Limits (Safety boundaries)
+# -----------------------------------------------------------------------------
+limits:
+  # Linear motion
+  max_linear_velocity: 1.5 # m/s
+  max_linear_acceleration: 2.0 # m/s²
+  min_linear_velocity: 0.05 # m/s (deadband)
+
+  # Angular motion
+  max_angular_velocity: 3.14 # rad/s (~180°/s)
+  max_angular_acceleration: 6.28 # rad/s²
+  min_angular_velocity: 0.05 # rad/s (deadband)
+
+  # Motor limits (PG45)
+  max_motor_rpm: 200
+  max_motor_current: 3.0 # Ampere
+
+  # Kicker limits
+  max_kicker_voltage: 200 # Volts
+  min_kick_interval: 3.0 # seconds (cooldown)
+
+# -----------------------------------------------------------------------------
+# Wheel Configuration (3-wheel omni)
+# -----------------------------------------------------------------------------
+wheels:
+  type: "omni_3"
+  count: 3
+  radius: 0.05 # meters (10cm diameter)
+  base_distance: 0.17 # meters from center to wheel
+  angles_deg: [0, 120, 240] # degrees from front
+
+  # Motor specs (PG45)
+  motor:
+    type: "PG45"
+    gear_ratio: 45
+    encoder_ppr: 11 # Pulses per revolution
+    encoder_cpr: 1980 # Counts per revolution (11 * 45 * 4)
+
+# -----------------------------------------------------------------------------
+# PID Controller Parameters
+# -----------------------------------------------------------------------------
+pid:
+  # Position control
+  position:
+    kp: 2.0
+    ki: 0.1
+    kd: 0.5
+    max_output: 1.5 # m/s
+
+  # Heading control
+  heading:
+    kp: 3.0
+    ki: 0.05
+    kd: 0.3
+    max_output: 3.14 # rad/s
+
+  # Motor velocity control (per motor)
+  motor:
+    kp: 1.0
+    ki: 0.5
+    kd: 0.01
+    max_output: 255 # PWM
+
+# -----------------------------------------------------------------------------
+# Tolerances
+# -----------------------------------------------------------------------------
+tolerances:
+  position: 0.05 # meters
+  heading: 0.087 # radians (~5°)
+  velocity: 0.02 # m/s
+  ball_distance: 0.15 # meters (to consider "near ball")
+
+# -----------------------------------------------------------------------------
+# Timing & Rates
+# -----------------------------------------------------------------------------
+timing:
+  control_rate: 50 # Hz
+  sensor_rate: 100 # Hz
+  vision_rate: 30 # Hz
+  publish_rate: 50 # Hz
+  watchdog_timeout: 0.5 # seconds
+
+# -----------------------------------------------------------------------------
+# Battery Configuration
+# -----------------------------------------------------------------------------
+battery:
+  type: "LiPo"
+  cells: 4 # 4S
+  voltage_full: 16.8 # V (4.2V per cell)
+  voltage_nominal: 14.8 # V (3.7V per cell)
+  voltage_low: 14.0 # V (warning threshold)
+  voltage_critical: 13.2 # V (shutdown threshold, 3.3V per cell)
+  capacity_mah: 5000 # mAh

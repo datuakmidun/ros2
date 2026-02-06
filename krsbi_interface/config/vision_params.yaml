@@ -1,0 +1,229 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Vision Parameters
+# =============================================================================
+# Configuration for camera and computer vision processing
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Camera Configuration
+# -----------------------------------------------------------------------------
+cameras:
+  # Omni Camera (Fisheye 360°)
+  omni:
+    enabled: true
+    device_id: 0 # /dev/video0 or camera index
+    resolution: [640, 480]
+    fps: 30
+    format: "MJPG" # or "YUYV"
+
+    # Fisheye calibration
+    calibration:
+      fx: 300.0 # Focal length x
+      fy: 300.0 # Focal length y
+      cx: 320.0 # Principal point x
+      cy: 240.0 # Principal point y
+      k1: -0.3 # Radial distortion k1
+      k2: 0.1 # Radial distortion k2
+      k3: 0.0 # Radial distortion k3
+      k4: 0.0 # Radial distortion k4
+
+    # Mirror/mapping settings (for omnidirectional)
+    mirror:
+      inner_radius: 50 # pixels
+      outer_radius: 220 # pixels
+      center_offset: [0, 0] # [x, y] offset from image center
+
+  # Front Camera (Logitech Webcam)
+  front:
+    enabled: true
+    device_id: 1 # /dev/video1 or camera index
+    resolution: [640, 480]
+    fps: 30
+    format: "MJPG"
+
+    # Standard calibration
+    calibration:
+      fx: 500.0
+      fy: 500.0
+      cx: 320.0
+      cy: 240.0
+      k1: 0.0
+      k2: 0.0
+      p1: 0.0
+      p2: 0.0
+
+# -----------------------------------------------------------------------------
+# Ball Detection
+# -----------------------------------------------------------------------------
+ball_detection:
+  enabled: true
+
+  # Color segmentation (HSV)
+  color:
+    # Orange ball (typical competition ball)
+    hue_low: 5
+    hue_high: 25
+    saturation_low: 100
+    saturation_high: 255
+    value_low: 100
+    value_high: 255
+
+  # Detection parameters
+  detection:
+    min_radius: 10 # pixels
+    max_radius: 200 # pixels
+    min_circularity: 0.7 # 0-1
+    min_area: 100 # pixels²
+    max_area: 50000 # pixels²
+
+  # Tracking
+  tracking:
+    enabled: true
+    max_distance: 100 # pixels (between frames)
+    max_missing_frames: 5 # frames before lost
+
+  # Position estimation
+  estimation:
+    use_size: true # Estimate distance from ball size
+    ball_diameter: 0.065 # meters (6.5cm)
+    height_offset: 0.033 # meters (ball center height)
+
+# -----------------------------------------------------------------------------
+# Robot Detection
+# -----------------------------------------------------------------------------
+robot_detection:
+  enabled: true
+
+  # Team color detection (for opponent identification)
+  team_colors:
+    blue:
+      hue_low: 100
+      hue_high: 130
+      saturation_low: 100
+      saturation_high: 255
+      value_low: 50
+      value_high: 255
+    yellow:
+      hue_low: 20
+      hue_high: 40
+      saturation_low: 100
+      saturation_high: 255
+      value_low: 100
+      value_high: 255
+
+  # Detection parameters
+  detection:
+    min_area: 500 # pixels²
+    max_area: 100000 # pixels²
+
+# -----------------------------------------------------------------------------
+# Goal Detection
+# -----------------------------------------------------------------------------
+goal_detection:
+  enabled: true
+
+  # Goal post detection (white)
+  color:
+    hue_low: 0
+    hue_high: 180
+    saturation_low: 0
+    saturation_high: 50
+    value_low: 200
+    value_high: 255
+
+  # Line detection for goal
+  line:
+    rho: 1
+    theta: 0.0175 # 1 degree in radians
+    threshold: 50
+    min_line_length: 50
+    max_line_gap: 10
+
+# -----------------------------------------------------------------------------
+# Field Line Detection
+# -----------------------------------------------------------------------------
+line_detection:
+  enabled: true
+
+  # White line detection
+  color:
+    hue_low: 0
+    hue_high: 180
+    saturation_low: 0
+    saturation_high: 50
+    value_low: 180
+    value_high: 255
+
+  # Canny edge detection
+  canny:
+    threshold1: 50
+    threshold2: 150
+
+  # Hough line transform
+  hough:
+    rho: 1
+    theta: 0.0175
+    threshold: 50
+    min_line_length: 30
+    max_line_gap: 10
+
+  # Circle detection (center circle)
+  circle:
+    dp: 1
+    min_dist: 100
+    param1: 100
+    param2: 30
+    min_radius: 50
+    max_radius: 200
+
+# -----------------------------------------------------------------------------
+# Image Processing
+# -----------------------------------------------------------------------------
+image_processing:
+  # Preprocessing
+  blur:
+    enabled: true
+    kernel_size: 5
+
+  # Morphological operations
+  morphology:
+    erode_kernel: 3
+    dilate_kernel: 3
+    iterations: 2
+
+  # Color correction
+  color_correction:
+    enabled: true
+    auto_white_balance: true
+    brightness: 0
+    contrast: 1.0
+    saturation: 1.2
+
+# -----------------------------------------------------------------------------
+# Performance Settings
+# -----------------------------------------------------------------------------
+performance:
+  # Threading
+  use_threading: true
+  num_threads: 2
+
+  # GPU acceleration (if available)
+  use_gpu: false
+
+  # Frame skipping
+  skip_frames: 0 # Process every N-th frame
+
+  # ROI (Region of Interest)
+  use_roi: false
+  roi: [0, 0, 640, 480] # [x, y, width, height]
+
+# -----------------------------------------------------------------------------
+# Debug & Visualization
+# -----------------------------------------------------------------------------
+debug:
+  enabled: false
+  show_mask: false
+  show_contours: true
+  show_fps: true
+  save_images: false
+  save_path: "/tmp/krsbi_vision"

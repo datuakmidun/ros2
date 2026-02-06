@@ -1,0 +1,237 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Control Parameters
+# =============================================================================
+# Motion control, path planning, and behavior configuration
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Motion Controller
+# -----------------------------------------------------------------------------
+motion:
+  # Control mode
+  mode: "velocity" # "velocity" or "position"
+
+  # Velocity ramping (acceleration limiting)
+  ramping:
+    enabled: true
+    max_linear_accel: 2.0 # m/s²
+    max_angular_accel: 6.28 # rad/s²
+    decel_factor: 1.5 # Faster deceleration
+
+  # Deadband (ignore small commands)
+  deadband:
+    linear: 0.03 # m/s
+    angular: 0.05 # rad/s
+
+  # Emergency stop
+  emergency:
+    enabled: true
+    decel_rate: 5.0 # m/s²
+    timeout: 0.5 # seconds without command
+
+# -----------------------------------------------------------------------------
+# Omni Kinematics (3-wheel)
+# -----------------------------------------------------------------------------
+kinematics:
+  wheel_radius: 0.05 # meters
+  robot_radius: 0.17 # meters (center to wheel)
+
+  # Wheel angle configuration (degrees from front)
+  wheel_angles: [0, 120, 240]
+
+  # Velocity limits per wheel
+  max_wheel_velocity: 10.47 # rad/s (100 RPM)
+
+  # Correction factors (calibration)
+  wheel_correction: [1.0, 1.0, 1.0]
+
+# -----------------------------------------------------------------------------
+# Path Planning
+# -----------------------------------------------------------------------------
+path_planning:
+  # Planner type
+  type: "simple" # "simple", "rrt", "potential_field"
+
+  # Goal parameters
+  goal_tolerance:
+    position: 0.05 # meters
+    heading: 0.087 # radians (~5°)
+
+  # Approach parameters
+  approach_distance: 0.15 # meters (start slowing)
+  final_approach_speed: 0.3 # m/s
+
+  # Path smoothing
+  smoothing:
+    enabled: true
+    factor: 0.3
+
+# -----------------------------------------------------------------------------
+# Obstacle Avoidance
+# -----------------------------------------------------------------------------
+obstacle_avoidance:
+  enabled: true
+
+  # Detection
+  min_distance: 0.20 # meters
+  danger_distance: 0.30 # meters (start avoiding)
+
+  # Avoidance behavior
+  avoidance_gain: 1.5
+  turn_direction: "optimal" # "optimal", "left", "right"
+
+  # Sensor weights (per sensor position)
+  sensor_weights:
+    front: 1.5
+    front_left: 1.0
+    front_right: 1.0
+    left: 0.5
+    right: 0.5
+    rear: 0.3
+
+# -----------------------------------------------------------------------------
+# Localization
+# -----------------------------------------------------------------------------
+localization:
+  # Odometry
+  odometry:
+    enabled: true
+    publish_tf: true
+
+  # IMU fusion
+  imu_fusion:
+    enabled: true
+    weight: 0.8 # IMU weight for heading
+
+  # Field-based correction
+  field_localization:
+    enabled: false # Enable when vision ready
+    update_rate: 5 # Hz
+
+  # Covariance
+  position_covariance: 0.1 # meters²
+  heading_covariance: 0.05 # radians²
+
+# -----------------------------------------------------------------------------
+# Trajectory Tracking
+# -----------------------------------------------------------------------------
+trajectory:
+  # Tracking mode
+  mode: "pure_pursuit" # "pure_pursuit", "pid", "mpc"
+
+  # Pure pursuit parameters
+  pure_pursuit:
+    lookahead_distance: 0.3 # meters
+    min_lookahead: 0.15 # meters
+    max_lookahead: 0.5 # meters
+
+  # Velocity profiling
+  velocity_profile:
+    cruise_velocity: 1.0 # m/s
+    final_velocity: 0.2 # m/s
+    decel_distance: 0.3 # meters
+
+# -----------------------------------------------------------------------------
+# Ball Handling
+# -----------------------------------------------------------------------------
+ball_handling:
+  # Approach
+  approach:
+    distance: 0.20 # meters (target distance to ball)
+    angle_tolerance: 0.17 # radians (~10°)
+    speed: 0.5 # m/s
+
+  # Dribbling
+  dribble:
+    speed: 0.4 # m/s
+    ball_check_interval: 0.5 # seconds
+
+  # Alignment (for kicking)
+  align:
+    target_tolerance: 0.05 # radians (~3°)
+    position_tolerance: 0.03 # meters
+
+# -----------------------------------------------------------------------------
+# Kicking
+# -----------------------------------------------------------------------------
+kicking:
+  # Power levels (mapped to capacitor charge)
+  power_levels:
+    soft: 0.3 # 30%
+    medium: 0.6 # 60%
+    hard: 0.9 # 90%
+    max: 1.0 # 100%
+
+  # Timing
+  charge_timeout: 5.0 # seconds
+  kick_duration: 0.05 # seconds (relay on time)
+  cooldown: 2.0 # seconds between kicks
+
+  # Distance estimation (for power selection)
+  distance_to_power:
+    # [distance_meters, power_level]
+    - [1.0, 0.3]
+    - [2.0, 0.5]
+    - [3.0, 0.7]
+    - [5.0, 0.9]
+
+# -----------------------------------------------------------------------------
+# Gripper Control
+# -----------------------------------------------------------------------------
+gripper:
+  # Actions
+  open_position: 1.0 # 0-1 (fully open)
+  close_position: 0.0 # 0-1 (fully closed)
+  grab_position: 0.3 # 0-1 (holding ball)
+
+  # Timing
+  action_timeout: 2.0 # seconds
+  settle_time: 0.3 # seconds after action
+
+  # Ball detection
+  ball_confirm_time: 0.2 # seconds (stable detection)
+
+# -----------------------------------------------------------------------------
+# Behaviors
+# -----------------------------------------------------------------------------
+behaviors:
+  # Go to position
+  go_to_position:
+    default_speed: 0.8 # m/s
+    rotation_priority: false # Rotate while moving
+
+  # Follow ball
+  follow_ball:
+    min_distance: 0.15 # meters
+    max_distance: 0.30 # meters
+    speed_factor: 0.7 # % of max speed
+
+  # Defend goal
+  defend_goal:
+    goal_line_offset: 0.5 # meters from goal line
+    max_lateral_speed: 1.0 # m/s
+
+  # Search ball
+  search_ball:
+    rotation_speed: 0.5 # rad/s
+    scan_timeout: 5.0 # seconds
+
+# -----------------------------------------------------------------------------
+# Safety
+# -----------------------------------------------------------------------------
+safety:
+  # Watchdog
+  watchdog:
+    enabled: true
+    timeout: 0.5 # seconds
+
+  # Limits
+  enforce_limits: true
+  soft_stop_distance: 0.15 # meters (from obstacle)
+
+  # Emergency conditions
+  emergency_triggers:
+    - "low_battery"
+    - "motor_stall"
+    - "communication_lost"
+    - "imu_error"
