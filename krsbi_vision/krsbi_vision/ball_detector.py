@@ -245,14 +245,12 @@ class BallDetectorNode(Node):
             omni = self.omni_frame.copy() if self.omni_frame is not None else None
         
         detections = []
-        debug_frame = None
         
         # Detect from front camera
         if front is not None:
             front_det = self.detect_in_frame(front, 'front')
             if front_det:
                 detections.append(front_det)
-            debug_frame = front
         
         # Detect from omni camera
         if omni is not None:
@@ -260,36 +258,32 @@ class BallDetectorNode(Node):
             if omni_det:
                 detections.append(omni_det)
         
-        # Fuse detections (prefer front camera, higher confidence)
-        best_detection = self.fuse_detections(detections)
+        # Strategy: Publish ALL detections, let the seeker node decide
+        # But for now, let's prioritize closest or front
         
-        # Update Kalman filter
-        if self.tracker:
-            if best_detection:
-                measurement = np.array([best_detection.x, best_detection.y])
-                track = self.tracker.update(measurement)
+        best_detection = None
+        if detections:
+            # Prefer front camera if available (more accurate distance)
+            front_d = next((d for d in detections if 'front' in d.source), None)
+            if front_d:
+                best_detection = front_d
             else:
-                track = self.tracker.update(None)
-            
-            # Get filtered position
-            if track and track.is_confirmed:
-                pos = self.tracker.get_position()
-                vel = self.tracker.get_velocity()
-                if pos is not None:
-                    self.last_position = tuple(pos)
-                if vel is not None:
-                    self.last_velocity = tuple(vel)
+                # Otherwise use omni
+                best_detection = next((d for d in detections if 'omni' in d.source), None)
         
         self.last_detection = best_detection
         
         # Publish results
         self.publish_ball(best_detection)
         
-        # Publish debug image (from whichever camera is active)
+        # Publish debug image (simple: just show what we have)
         if self.publish_debug:
-            debug_frame = omni if omni is not None else front
-            if debug_frame is not None:
-                self.publish_debug_image(debug_frame, best_detection)
+            if best_detection and 'front' in best_detection.source and front is not None:
+                self.publish_debug_image(front, best_detection)
+            elif omni is not None:
+                self.publish_debug_image(omni, best_detection)
+            elif front is not None:
+                self.publish_debug_image(front, None)
     
     def detect_in_frame(
         self, 

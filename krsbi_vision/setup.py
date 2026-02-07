@@ -51,6 +51,7 @@ setup(
             'field_detector = krsbi_vision.field_detector:main',
             'vision_fusion = krsbi_vision.vision_fusion:main',
             'color_calibrator = krsbi_vision.color_calibrator:main',
+            'ball_seeker = krsbi_vision.ball_seeker:main',
         ],
     },
 )
