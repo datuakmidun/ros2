@@ -10,7 +10,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="properties">
 
   <!-- ==================== MATH CONSTANTS ==================== -->
-  <xacro:property name="pi" value="3.14159265359"/>
+  <!-- pi is already defined by xacro globally -->
   <xacro:property name="cos_60" value="0.5"/>
   <xacro:property name="sin_60" value="0.866025403784"/>
   <xacro:property name="cos_45" value="0.707106781187"/>
