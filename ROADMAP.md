@@ -945,6 +945,7 @@ class PIDController:
 
 > **Tujuan:** Game strategy, behavior tree, dan decision making  
 > **Priority:** 🟠 HIGH  
+> **Status:** ✅ COMPLETED (Core)  
 > **Estimated Duration:** 3 minggu
 
 #### 7.1 Structure
@@ -953,35 +954,23 @@ class PIDController:
 krsbi_decision/
 ├── krsbi_decision/
 │   ├── __init__.py
-│   ├── game_controller.py
-│   ├── strategy_manager.py
-│   ├── role_manager.py
-│   ├── behavior_tree/
+│   ├── game_controller.py       # ✅ Referee Interface
+│   ├── strategy_manager.py      # ✅ Main BT Executor
+│   ├── world_model/
 │   │   ├── __init__.py
-│   │   ├── nodes.py
-│   │   ├── conditions.py
-│   │   └── actions.py
-│   ├── strategies/
-│   │   ├── __init__.py
-│   │   ├── striker.py
-│   │   ├── goalkeeper.py
-│   │   └── defender.py
-│   └── world_model/
+│   │   └── world_state.py       # ✅ Data structures
+│   └── behavior_tree/
 │       ├── __init__.py
-│       ├── world_state.py
-│       └── ball_tracker.py
+│       ├── actions.py           # ✅ Leaf nodes
+│       ├── conditions.py        # ✅ Leaf nodes
+│       └── roles.py             # ✅ Strategy Trees
 ├── config/
-│   ├── strategy_params.yaml
-│   ├── behavior_trees/
-│   │   ├── striker.xml
-│   │   ├── goalkeeper.xml
-│   │   └── defender.xml
+│   └── strategy_params.yaml     # ✅ Game Rules
 ├── launch/
 │   └── decision_bringup.launch.py
-├── test/
-│   └── test_strategies.py
 ├── package.xml
-└── setup.py
+├── setup.py
+└── README.md
 ```
 
 #### 7.2 Development Tasks
@@ -989,24 +978,24 @@ krsbi_decision/
 | Task                | Deskripsi                                       | Status  |
 | ------------------- | ----------------------------------------------- | ------- |
 | **World Model**     |                                                 |         |
-| 7.2.1               | Implementasi WorldState class                   | ⬜ TODO |
-| 7.2.2               | Ball tracking & prediction                      | ⬜ TODO |
-| 7.2.3               | Robot pose estimation                           | ⬜ TODO |
+| 7.2.1               | Implementasi WorldState class                   | ✅ DONE |
+| 7.2.2               | Ball tracking & prediction                      | ✅ DONE |
+| 7.2.3               | Robot pose estimation                           | ✅ DONE |
 | 7.2.4               | Opponent tracking                               | ⬜ TODO |
 | **Game Controller** |                                                 |         |
-| 7.2.5               | Game state machine (Ready, Play, Pause, etc.)   | ⬜ TODO |
+| 7.2.5               | Game state machine (Ready, Play, Pause, etc.)   | ✅ DONE |
 | 7.2.6               | GameController protocol integration             | ⬜ TODO |
 | 7.2.7               | Penalty/Freekick handling                       | ⬜ TODO |
 | **Role Management** |                                                 |         |
 | 7.2.8               | Dynamic role assignment                         | ⬜ TODO |
 | 7.2.9               | Role switching logic                            | ⬜ TODO |
 | **Behavior Trees**  |                                                 |         |
-| 7.2.10              | Setup py_trees atau custom BT                   | ⬜ TODO |
-| 7.2.11              | Condition nodes (ball visible, near goal, etc.) | ⬜ TODO |
-| 7.2.12              | Action nodes (go to, kick, etc.)                | ⬜ TODO |
+| 7.2.10              | Setup py_trees atau custom BT                   | ✅ DONE |
+| 7.2.11              | Condition nodes (ball visible, near goal, etc.) | ✅ DONE |
+| 7.2.12              | Action nodes (go to, kick, etc.)                | ✅ DONE |
 | **Strategies**      |                                                 |         |
-| 7.2.13              | Striker strategy                                | ⬜ TODO |
-| 7.2.14              | Goalkeeper strategy                             | ⬜ TODO |
+| 7.2.13              | Striker strategy                                | ✅ DONE |
+| 7.2.14              | Goalkeeper strategy                             | ✅ DONE |
 | 7.2.15              | Defender strategy                               | ⬜ TODO |
 | 7.2.16              | Team coordination                               | ⬜ TODO |
 

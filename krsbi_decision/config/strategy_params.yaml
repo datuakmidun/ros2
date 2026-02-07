@@ -1,0 +1,15 @@
+/**:
+  ros__parameters:
+    # Role configs
+    roles:
+      striker:
+        attack_speed: 1.5
+        shoot_range: 2.0
+      goalie:
+        defend_line: -4.5
+        clearance_range: 0.8
+
+    # Game rules
+    game:
+      field_length: 12.0
+      field_width: 8.0

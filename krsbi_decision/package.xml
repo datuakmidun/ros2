@@ -2,10 +2,19 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>krsbi_decision</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>1.0.0</version>
+  <description>Game strategy, behavior trees, and high-level decision making for KRSBI-B</description>
   <maintainer email="datuakmidun@gmail.com">datuakmidun</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>krsbi_msgs</exec_depend>
+  <exec_depend>py_trees</exec_depend> <!-- Behavior Tree Library -->
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
