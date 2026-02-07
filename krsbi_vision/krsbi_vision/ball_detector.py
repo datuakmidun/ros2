@@ -79,12 +79,15 @@ class BallDetectorNode(Node):
         self.declare_parameter('yolo_model', 'yolov8s.pt')
         self.declare_parameter('yolo_confidence', 0.6)
         
-        # Color detection (HSV)
-        self.declare_parameter('hue_low', 5)
-        self.declare_parameter('hue_high', 25)
-        self.declare_parameter('saturation_low', 100)
+        # Color detection (HSV) - Pink/Magenta ball
+        # Pink hue wraps around: 150-180 OR 0-10
+        self.declare_parameter('hue_low', 140)
+        self.declare_parameter('hue_high', 180)
+        self.declare_parameter('hue_low2', 0)  # Second range for wraparound
+        self.declare_parameter('hue_high2', 15)
+        self.declare_parameter('saturation_low', 50)
         self.declare_parameter('saturation_high', 255)
-        self.declare_parameter('value_low', 100)
+        self.declare_parameter('value_low', 50)
         self.declare_parameter('value_high', 255)
         
         # Size filtering
@@ -113,6 +116,8 @@ class BallDetectorNode(Node):
         
         self.hue_low = self.get_parameter('hue_low').value
         self.hue_high = self.get_parameter('hue_high').value
+        self.hue_low2 = self.get_parameter('hue_low2').value
+        self.hue_high2 = self.get_parameter('hue_high2').value
         self.sat_low = self.get_parameter('saturation_low').value
         self.sat_high = self.get_parameter('saturation_high').value
         self.val_low = self.get_parameter('value_low').value
@@ -324,10 +329,12 @@ class BallDetectorNode(Node):
     ) -> Optional[BallDetection]:
         """Detect ball using YOLO."""
         try:
+            # Detect all objects, filter by shape/size later
+            # Remove class filter to catch any ball-like objects
             results = self.model.predict(
                 frame,
                 conf=self.yolo_conf,
-                classes=[32],  # COCO sports ball, or custom class
+                # classes=[32],  # Disabled: detect all objects
                 verbose=False,
             )
             
@@ -379,14 +386,26 @@ class BallDetectorNode(Node):
         # Apply CLAHE for better color detection
         enhanced = apply_clahe(frame)
         
-        # Create color mask
-        mask = create_mask_hsv(
+        # Create color mask - primary range (e.g., 140-180 for pink)
+        mask1 = create_mask_hsv(
             enhanced,
             self.hue_low, self.hue_high,
             self.sat_low, self.sat_high,
             self.val_low, self.val_high,
             kernel_size=5,
         )
+        
+        # Create color mask - secondary range for wraparound (e.g., 0-15)
+        mask2 = create_mask_hsv(
+            enhanced,
+            self.hue_low2, self.hue_high2,
+            self.sat_low, self.sat_high,
+            self.val_low, self.val_high,
+            kernel_size=5,
+        )
+        
+        # Combine both masks (for colors like pink that wrap around 180°)
+        mask = cv2.bitwise_or(mask1, mask2)
         
         # Find contours
         contour = find_largest_contour(mask, self.min_area)
