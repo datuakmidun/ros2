@@ -478,18 +478,35 @@ class BallDetectorNode(Node):
             msg.header.stamp = stamp
             msg.header.frame_id = 'base_link'
             
-            msg.detected = True
-            msg.x = detection.distance  # World X
-            msg.y = 0.0  # TODO
-            msg.pixel_x = detection.x
-            msg.pixel_y = detection.y
-            msg.radius = detection.radius
-            msg.confidence = detection.confidence
-            msg.distance = detection.distance
+            # Position in world coordinates (meters)
+            msg.x = detection.distance  # Forward distance
+            msg.y = 0.0  # TODO: calculate lateral from bearing
+            msg.z = 0.0  # Assume ground level
             
+            # Polar coordinates
+            msg.distance = detection.distance
+            msg.angle = 0.0  # TODO: calculate from pixel position
+            
+            # Status
+            msg.confidence = detection.confidence
+            msg.is_visible = True
+            msg.is_moving = False  # TODO: calculate from velocity
+            
+            # Velocity (from Kalman)
             if self.last_velocity:
-                msg.velocity_x = self.last_velocity[0]
-                msg.velocity_y = self.last_velocity[1]
+                msg.vx = self.last_velocity[0]
+                msg.vy = self.last_velocity[1]
+            else:
+                msg.vx = 0.0
+                msg.vy = 0.0
+            
+            # Camera source
+            if 'omni' in detection.source:
+                msg.camera_source = BallPosition.CAMERA_OMNI
+            elif 'front' in detection.source:
+                msg.camera_source = BallPosition.CAMERA_FRONT
+            else:
+                msg.camera_source = BallPosition.CAMERA_FUSED
             
             self.ball_pub.publish(msg)
     
