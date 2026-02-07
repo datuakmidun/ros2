@@ -201,6 +201,12 @@ class BallDetectorNode(Node):
         if self.publish_debug:
             self.debug_pub = self.create_publisher(
                 Image, '/krsbi/vision/ball/debug', image_qos)
+            self.debug_front_pub = self.create_publisher(
+                Image, '/krsbi/vision/ball/debug_front', image_qos)
+            self.debug_omni_pub = self.create_publisher(
+                Image, '/krsbi/vision/ball/debug_omni', image_qos)
+            self.debug_combined_pub = self.create_publisher(
+                Image, '/krsbi/vision/ball/debug_combined', image_qos)
         
         # =================================================================
         # Timer
@@ -285,9 +291,27 @@ class BallDetectorNode(Node):
         # Publish results
         self.publish_ball(best_detection)
         
-        # Publish debug image
-        if self.publish_debug and debug_frame is not None:
-            self.publish_debug_image(debug_frame, best_detection)
+        # Publish debug images from both cameras
+        if self.publish_debug:
+            # Find detection for each camera
+            front_det = next((d for d in detections if 'front' in d.source), None)
+            omni_det = next((d for d in detections if 'omni' in d.source), None)
+            
+            # Debug front camera
+            if front is not None:
+                self.publish_debug_image(front, front_det, self.debug_front_pub, "Front")
+            
+            # Debug omni camera
+            if omni is not None:
+                self.publish_debug_image(omni, omni_det, self.debug_omni_pub, "Omni")
+            
+            # Combined view (side by side)
+            if front is not None and omni is not None:
+                self.publish_combined_debug(front, omni, front_det, omni_det, best_detection)
+            elif front is not None:
+                self.publish_debug_image(front, best_detection, self.debug_pub, "Front")
+            elif omni is not None:
+                self.publish_debug_image(omni, best_detection, self.debug_pub, "Omni")
     
     def detect_in_frame(
         self, 
@@ -550,10 +574,20 @@ class BallDetectorNode(Node):
     def publish_debug_image(
         self, 
         frame: np.ndarray, 
-        detection: Optional[BallDetection]
+        detection: Optional[BallDetection],
+        publisher=None,
+        label: str = ""
     ):
         """Publish debug image with visualization."""
+        if publisher is None:
+            publisher = self.debug_pub
+            
         output = frame.copy()
+        
+        # Draw label
+        if label:
+            cv2.putText(output, f"[{label}]", (10, 25),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
         
         # Draw detection
         if detection:
@@ -577,16 +611,77 @@ class BallDetectorNode(Node):
                     output = draw_trajectory(output, trajectory)
         else:
             # Draw "NOT DETECTED" text
-            cv2.putText(output, "Ball: NOT DETECTED", (10, 30),
+            cv2.putText(output, "Ball: NOT DETECTED", (10, 50),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         
         # Publish
         try:
             msg = self.bridge.cv2_to_imgmsg(output, encoding='bgr8')
             msg.header.stamp = self.get_clock().now().to_msg()
-            self.debug_pub.publish(msg)
+            publisher.publish(msg)
         except Exception as e:
             self.get_logger().error(f'Debug publish error: {e}')
+    
+    def publish_combined_debug(
+        self,
+        front_frame: np.ndarray,
+        omni_frame: np.ndarray,
+        front_det: Optional[BallDetection],
+        omni_det: Optional[BallDetection],
+        best_det: Optional[BallDetection]
+    ):
+        """Publish combined debug view with both cameras side by side."""
+        # Process front frame
+        front_out = front_frame.copy()
+        cv2.putText(front_out, "[FRONT]", (10, 25),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+        if front_det:
+            front_out = draw_ball(front_out, (front_det.x, front_det.y),
+                                  front_det.radius, distance=front_det.distance)
+        
+        # Process omni frame - resize to match front height
+        omni_out = omni_frame.copy()
+        cv2.putText(omni_out, "[OMNI 360]", (10, 25),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        if omni_det:
+            omni_out = draw_ball(omni_out, (omni_det.x, omni_det.y),
+                                 omni_det.radius, distance=omni_det.distance)
+        
+        # Resize omni to match front height
+        front_h, front_w = front_out.shape[:2]
+        omni_h, omni_w = omni_out.shape[:2]
+        if omni_h != front_h:
+            scale = front_h / omni_h
+            new_w = int(omni_w * scale)
+            omni_out = cv2.resize(omni_out, (new_w, front_h))
+        
+        # Combine side by side
+        combined = np.hstack([front_out, omni_out])
+        
+        # Add status bar at bottom
+        status_h = 40
+        status_bar = np.zeros((status_h, combined.shape[1], 3), dtype=np.uint8)
+        
+        if best_det:
+            status_text = f"DETECTED: {best_det.distance:.2f}m | conf: {best_det.confidence:.2f} | src: {best_det.source}"
+            color = (0, 255, 0)
+        else:
+            status_text = "BALL NOT DETECTED"
+            color = (0, 0, 255)
+        
+        cv2.putText(status_bar, status_text, (10, 28),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+        
+        combined = np.vstack([combined, status_bar])
+        
+        # Publish to combined topic and main debug topic
+        try:
+            msg = self.bridge.cv2_to_imgmsg(combined, encoding='bgr8')
+            msg.header.stamp = self.get_clock().now().to_msg()
+            self.debug_combined_pub.publish(msg)
+            self.debug_pub.publish(msg)  # Also publish to main debug topic
+        except Exception as e:
+            self.get_logger().error(f'Combined debug error: {e}')
 
 
 def main(args=None):
