@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
+import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
+    # Get package share directory
+    pkg_share = get_package_share_directory('krsbi_vision')
+    
+    # Default model path (relative to package)
+    default_model = os.path.join(pkg_share, 'models', 'yolov8s.pt')
+    
     # Launch arguments
     device_arg = DeclareLaunchArgument('device', default_value='0', description='Camera device ID')
-    model_arg = DeclareLaunchArgument('model', default_value='yolov8n.pt', description='YOLO model path')
-    class_arg = DeclareLaunchArgument('ball_class', default_value='0', description='Ball class ID in YOLO model')
+    model_arg = DeclareLaunchArgument('model', default_value=default_model, description='YOLO model path')
+    class_arg = DeclareLaunchArgument('ball_class', default_value='0', description='Ball class ID')
     
     camera_node = Node(
         package='krsbi_vision',
@@ -37,3 +45,4 @@ def generate_launch_description():
     )
     
     return LaunchDescription([device_arg, model_arg, class_arg, camera_node, ball_detector])
+
