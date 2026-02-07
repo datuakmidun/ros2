@@ -105,10 +105,10 @@ class CameraNode(Node):
         # Publishers
         # =================================================================
         self.image_pub = self.create_publisher(
-            Image, '/krsbi/camera/front/image_raw', image_qos)
+            Image, 'image_raw', image_qos)
         
         self.info_pub = self.create_publisher(
-            CameraInfo, '/krsbi/camera/front/camera_info', 10)
+            CameraInfo, 'camera_info', 10)
         
         # =================================================================
         # Initialize camera
