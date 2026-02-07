@@ -17,6 +17,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -52,7 +53,8 @@ def generate_launch_description():
     )
     
     # Get URDF via xacro
-    robot_description = Command(['xacro ', urdf_file])
+    robot_description_content = Command(['xacro ', urdf_file])
+    robot_description = ParameterValue(robot_description_content, value_type=str)
     
     # Robot State Publisher
     robot_state_publisher = Node(
