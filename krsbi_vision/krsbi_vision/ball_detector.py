@@ -97,8 +97,11 @@ class BallDetectorNode(Node):
         self.declare_parameter('min_circularity', 0.6)
         
         # Distance estimation
-        self.declare_parameter('ball_diameter', 0.21)
-        self.declare_parameter('focal_length', 554.0)
+        self.declare_parameter('ball_diameter', 0.15) # FIFA Size 1
+        
+        # Calibration Parameters
+        self.declare_parameter('focal_length_front', 554.0)
+        self.declare_parameter('focal_length_omni', 400.0)
         
         # Kalman filter
         self.declare_parameter('kalman_enabled', True)
@@ -108,11 +111,6 @@ class BallDetectorNode(Node):
         # Debug
         self.declare_parameter('publish_debug', True)
         self.declare_parameter('detection_rate', 30.0)
-        
-        # Calibration Parameters
-        self.declare_parameter('focal_length_front', 554.0)
-        self.declare_parameter('focal_length_omni', 400.0) # Omni usually wider
-        self.declare_parameter('ball_diameter', 0.15) # FIFA Size 1/Generic (Adjust to actual)
         
         # Get parameters
         self.use_yolo = self.get_parameter('use_yolo').value
@@ -135,7 +133,8 @@ class BallDetectorNode(Node):
         self.min_circularity = self.get_parameter('min_circularity').value
         
         self.ball_diameter = self.get_parameter('ball_diameter').value
-        self.focal_length = self.get_parameter('focal_length').value
+        self.focal_length_front = self.get_parameter('focal_length_front').value
+        self.focal_length_omni = self.get_parameter('focal_length_omni').value
         
         self.kalman_enabled = self.get_parameter('kalman_enabled').value
         self.publish_debug = self.get_parameter('publish_debug').value
