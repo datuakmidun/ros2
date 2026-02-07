@@ -32,7 +32,7 @@ from .kalman_filter import BallTracker
 from .utils import (
     create_mask_hsv, find_largest_contour, fit_circle,
     calculate_circularity, estimate_ball_distance,
-    draw_ball, draw_trajectory, apply_clahe,
+    draw_ball, draw_trajectory, apply_clahe, draw_detection,
 )
 
 # Try to import YOLO
@@ -101,7 +101,7 @@ class BallDetectorNode(Node):
         
         # Calibration Parameters
         self.declare_parameter('focal_length_front', 554.0)
-        self.declare_parameter('focal_length_omni', 51.1)    # Calibrated from user data (1m -> 2.3m w/ 117.6)
+        self.declare_parameter('focal_length_omni', 122.6)    # Recalibrated (0.6m -> 0.25m w/ 51.1)
         
         # Kalman filter
         self.declare_parameter('kalman_enabled', True)
@@ -377,9 +377,12 @@ class BallDetectorNode(Node):
                     cy = (y1 + y2) / 2
                     radius = max(x2 - x1, y2 - y1) / 2
                     
-                    distance = estimate_ball_distance(
-                        radius, self.ball_diameter, focal_length
-                    )
+                    if 'omni' in source:
+                        distance = -1.0
+                    else:
+                        distance = estimate_ball_distance(
+                            radius, self.ball_diameter, focal_length
+                        )
                     
                     # Debug log parameter for calibration
                     if self.publish_debug:
@@ -450,9 +453,12 @@ class BallDetectorNode(Node):
         cx, cy, radius = fit_circle(contour)
         
         # Estimate distance
-        distance = estimate_ball_distance(
-            radius, self.ball_diameter, focal_length
-        )
+        if 'omni' in source:
+            distance = -1.0
+        else:
+            distance = estimate_ball_distance(
+                radius, self.ball_diameter, focal_length
+            )
         
         # Debug log parameter for calibration
         if self.publish_debug:
@@ -565,14 +571,32 @@ class BallDetectorNode(Node):
         """Publish debug image with visualization."""
         output = frame.copy()
         
+        # Draw Cartesian Grid (Center Crosshair)
+        h, w = output.shape[:2]
+        cx, cy = w // 2, h // 2
+        # Color: Cyan (255, 255, 0) in BGR
+        cv2.line(output, (0, cy), (w, cy), (255, 255, 0), 1)       # Horizontal X-axis
+        cv2.line(output, (cx, 0), (cx, h), (255, 255, 0), 1)       # Vertical Y-axis
+        cv2.circle(output, (cx, cy), 3, (0, 0, 255), -1)           # Center Point (Red)
+        cv2.putText(output, "(0,0)", (cx + 5, cy - 5), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0), 1)
+        
         # Draw detection
         if detection:
-            output = draw_ball(
-                output,
-                (detection.x, detection.y),
-                detection.radius,
-                distance=detection.distance,
+            label = f"{detection.source}"
+            if detection.distance > 0:
+                label += f" {detection.distance:.2f}m"
+            
+            output = draw_detection(
+                output, 
+                (int(detection.x - detection.radius), int(detection.y - detection.radius),
+                 int(detection.x + detection.radius), int(detection.y + detection.radius)),
+                label,
+                detection.confidence
             )
+            
+            # Draw center point and line to center
+            cv2.line(output, (cx, cy), (int(detection.x), int(detection.y)), (0, 255, 255), 1)
             
             # Draw tracked position
             if self.last_position:

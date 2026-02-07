@@ -85,7 +85,10 @@ class BallSeekerNode(Node):
             
             # Update memory
             self.last_known_angle = msg.angle
-            self.last_known_dist = msg.distance
+            if msg.distance > 0:
+                self.last_known_dist = msg.distance
+            else:
+                self.last_known_dist = 10.0 # Assume far if unknown/invalid
 
     def prox_callback(self, msg):
         self.proximity_active = msg.data
