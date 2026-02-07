@@ -4,8 +4,8 @@
 #
 #        FRONT (0°)
 #           M1
-#          /  \
-#         /    \
+#          /  \ 
+#         /    \ 
 #        M2----M3
 #
 # M1: Motor depan (front) - arah 0°
