@@ -6,3 +6,127 @@
 
 /**:
   ros__parameters:
+    # -------------------------------------------------------------------------
+    # Ball Tracking Kalman Filter
+    # -------------------------------------------------------------------------
+    ball_tracker:
+      enabled: true
+
+      # State vector: [x, y, vx, vy, ax, ay]
+      model: "constant_acceleration"
+
+      # Process noise (Q matrix)
+      process_noise:
+        position: 0.1
+        velocity: 1.0
+        acceleration: 5.0
+
+      # Measurement noise (R matrix)
+      measurement_noise:
+        position: 2.0
+
+      # Initial covariance (P matrix)
+      initial_covariance:
+        position: 100.0
+        velocity: 50.0
+        acceleration: 10.0
+
+      # Prediction parameters
+      prediction:
+        max_prediction_time: 1.0
+        prediction_dt: 0.02
+
+      # Track management
+      track:
+        confirmation_threshold: 3
+        deletion_threshold: 10
+        max_age: 30
+        min_hits: 3
+
+      # Gating (association)
+      gating:
+        distance_threshold: 100
+        use_mahalanobis: true
+        mahalanobis_threshold: 9.21
+
+      # Ball physics
+      physics:
+        enabled: true
+        friction: 0.3
+        max_velocity: 3.0
+        bounce_decay: 0.7
+
+    # -------------------------------------------------------------------------
+    # Robot Tracking Kalman Filter
+    # -------------------------------------------------------------------------
+    robot_tracker:
+      enabled: true
+      model: "constant_velocity"
+
+      process_noise:
+        position: 0.5
+        velocity: 2.0
+
+      measurement_noise:
+        position: 5.0
+
+      initial_covariance:
+        position: 200.0
+        velocity: 100.0
+
+      track:
+        confirmation_threshold: 5
+        deletion_threshold: 15
+        max_age: 50
+        min_hits: 5
+
+      gating:
+        distance_threshold: 150
+        use_mahalanobis: true
+        mahalanobis_threshold: 11.07
+
+    # -------------------------------------------------------------------------
+    # Multi-Object Tracking
+    # -------------------------------------------------------------------------
+    multi_object:
+      association: "hungarian"
+
+      iou:
+        min_iou: 0.3
+
+      feature:
+        enabled: false
+        descriptor: "color_histogram"
+        similarity_threshold: 0.5
+
+      next_id_start: 1
+      max_track_id: 10000
+
+    # -------------------------------------------------------------------------
+    # Sensor Fusion
+    # -------------------------------------------------------------------------
+    fusion:
+      enabled: true
+      cameras:
+        - front_camera
+        - omni_camera
+      method: "weighted_average"
+      weights:
+        front_camera: 0.6
+        omni_camera: 0.4
+      max_time_diff: 0.1
+      world_frame: true
+
+    # -------------------------------------------------------------------------
+    # Prediction (for lost ball)
+    # -------------------------------------------------------------------------
+    prediction:
+      enabled: true
+      max_duration: 2.0
+      update_rate: 50
+      confidence_decay: 0.1
+      min_confidence: 0.1
+      physics:
+        gravity: 0.0
+        friction: 0.3
+        air_resistance: 0.01
