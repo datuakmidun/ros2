@@ -13,7 +13,7 @@ def generate_launch_description():
         name='camera',
         namespace='krsbi',
         output='screen',
-        parameters=[{'device_id': LaunchConfiguration('device'), 'width': 640, 'height': 480, 'fps': 30.0}],
+        parameters=[{'device_id': LaunchConfiguration('device'), 'width': 640, 'height': 480, 'fps': 30}],
         remappings=[('/krsbi/camera/image_raw', '/krsbi/camera/front/image_raw')],
     )
     
