@@ -77,7 +77,8 @@ class BallDetectorNode(Node):
         self.declare_parameter('use_yolo', True)
         self.declare_parameter('use_color', True)
         self.declare_parameter('yolo_model', 'yolov8s.pt')
-        self.declare_parameter('yolo_confidence', 0.6)
+        self.declare_parameter('yolo_confidence', 0.5)
+        self.declare_parameter('ball_class_id', 0)  # Custom model: 0, COCO: 32
         
         # Color detection (HSV) - Pink/Magenta ball
         # Pink hue wraps around: 150-180 OR 0-10
@@ -113,6 +114,7 @@ class BallDetectorNode(Node):
         self.use_color = self.get_parameter('use_color').value
         self.yolo_model = self.get_parameter('yolo_model').value
         self.yolo_conf = self.get_parameter('yolo_confidence').value
+        self.ball_class_id = self.get_parameter('ball_class_id').value
         
         self.hue_low = self.get_parameter('hue_low').value
         self.hue_high = self.get_parameter('hue_high').value
@@ -329,11 +331,11 @@ class BallDetectorNode(Node):
     ) -> Optional[BallDetection]:
         """Detect ball using YOLO."""
         try:
-            # Only detect sports ball (class 32 in COCO)
+            # Detect ball class (custom model: 0, COCO: 32)
             results = self.model.predict(
                 frame,
                 conf=self.yolo_conf,
-                classes=[32],  # Sports ball only
+                classes=[self.ball_class_id],
                 verbose=False,
             )
             
