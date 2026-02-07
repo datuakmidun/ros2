@@ -2,7 +2,7 @@
 # Position dan status bola yang terdeteksi oleh sistem vision
 # Koordinat dalam frame robot (robot-centric)
 
-builtin_interfaces/Time stamp      # Timestamp deteksi
+std_msgs/Header header             # Timestamp + frame_id
 
 # Posisi bola relatif terhadap robot
 float64 x                          # Jarak ke depan (meter), positif = depan robot
