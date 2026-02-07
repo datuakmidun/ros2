@@ -34,7 +34,7 @@ class CameraNode(Node):
         # =================================================================
         # Parameters
         # =================================================================
-        self.declare_parameter('device_id', 1)
+        self.declare_parameter('device_id', 4)
         self.declare_parameter('frame_id', 'front_camera_link')
         self.declare_parameter('width', 640)
         self.declare_parameter('height', 480)
