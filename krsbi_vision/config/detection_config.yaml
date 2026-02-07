@@ -4,224 +4,226 @@
 # YOLO and detection parameters for ball, robot, goal, and field detection
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# YOLOv8 Configuration
-# -----------------------------------------------------------------------------
-yolo:
-  # Model settings
-  model_path: "yolov8s.pt" # Use yolov8s for balance of speed/accuracy
-  custom_model: "" # Path to custom trained model (optional)
+/**:
+  ros__parameters:
+    # -----------------------------------------------------------------------------
+    # YOLOv8 Configuration
+    # -----------------------------------------------------------------------------
+    yolo:
+      # Model settings
+      model_path: "yolov8s.pt" # Use yolov8s for balance of speed/accuracy
+      custom_model: "" # Path to custom trained model (optional)
 
-  # Inference settings
-  device: "cpu" # "cpu", "cuda", "cuda:0", "mps"
-  half_precision: false # FP16 inference (GPU only)
+      # Inference settings
+      device: "cpu" # "cpu", "cuda", "cuda:0", "mps"
+      half_precision: false # FP16 inference (GPU only)
 
-  # Detection parameters
-  confidence_threshold: 0.5 # Minimum confidence
-  iou_threshold: 0.45 # NMS IoU threshold
-  max_detections: 20 # Maximum objects per frame
+      # Detection parameters
+      confidence_threshold: 0.5 # Minimum confidence
+      iou_threshold: 0.45 # NMS IoU threshold
+      max_detections: 20 # Maximum objects per frame
 
-  # Input size
-  input_size: 416 # 320, 416, 640 (larger = slower but accurate)
+      # Input size
+      input_size: 416 # 320, 416, 640 (larger = slower but accurate)
 
-  # Classes to detect (COCO or custom)
-  # -1 = all classes
-  # Custom: 0=ball, 1=robot, 2=goalpost
-  classes: [0, 1, 2] # Only detect these classes
+      # Classes to detect (COCO or custom)
+      # -1 = all classes
+      # Custom: 0=ball, 1=robot, 2=goalpost
+      classes: [0, 1, 2] # Only detect these classes
 
-  # Performance
-  inference_interval: 1 # Run on every Nth frame (1 = all frames)
-  async_inference: true # Run in separate thread
+      # Performance
+      inference_interval: 1 # Run on every Nth frame (1 = all frames)
+      async_inference: true # Run in separate thread
 
-# -----------------------------------------------------------------------------
-# Ball Detection
-# -----------------------------------------------------------------------------
-ball_detection:
-  enabled: true
+    # -----------------------------------------------------------------------------
+    # Ball Detection
+    # -----------------------------------------------------------------------------
+    ball_detection:
+      enabled: true
 
-  # Method priority
-  methods:
-    yolo: true # Primary: YOLO detection
-    color: true # Secondary: Color-based
-    circle: false # Tertiary: Hough circles
+      # Method priority
+      methods:
+        yolo: true # Primary: YOLO detection
+        color: true # Secondary: Color-based
+        circle: false # Tertiary: Hough circles
 
-  # YOLO specific
-  yolo:
-    class_id: 0 # Ball class in YOLO model
-    min_confidence: 0.6
+      # YOLO specific
+      yolo:
+        class_id: 0 # Ball class in YOLO model
+        min_confidence: 0.6
 
-  # Color-based detection (HSV)
-  color:
-    # Orange/red ball
-    hue_low: 5
-    hue_high: 25
-    saturation_low: 100
-    saturation_high: 255
-    value_low: 100
-    value_high: 255
+      # Color-based detection (HSV)
+      color:
+        # Orange/red ball
+        hue_low: 5
+        hue_high: 25
+        saturation_low: 100
+        saturation_high: 255
+        value_low: 100
+        value_high: 255
 
-    # Morphology
-    kernel_size: 5
-    morph_iterations: 2
+        # Morphology
+        kernel_size: 5
+        morph_iterations: 2
 
-    # Contour filtering
-    min_area: 100 # pixels
-    max_area: 50000
-    min_circularity: 0.6
-    max_aspect_ratio: 1.5
+        # Contour filtering
+        min_area: 100 # pixels
+        max_area: 50000
+        min_circularity: 0.6
+        max_aspect_ratio: 1.5
 
-  # Circle detection (Hough)
-  circle:
-    dp: 1.2
-    min_dist: 50
-    param1: 100 # Canny edge threshold
-    param2: 30 # Circle accumulator threshold
-    min_radius: 10
-    max_radius: 150
+      # Circle detection (Hough)
+      circle:
+        dp: 1.2
+        min_dist: 50
+        param1: 100 # Canny edge threshold
+        param2: 30 # Circle accumulator threshold
+        min_radius: 10
+        max_radius: 150
 
-  # Distance estimation
-  distance:
-    method: "size" # "size", "homography", "stereo"
-    ball_real_diameter: 0.21 # meters (KRSBI ball)
-    focal_length: 554.25 # from camera calibration
+      # Distance estimation
+      distance:
+        method: "size" # "size", "homography", "stereo"
+        ball_real_diameter: 0.21 # meters (KRSBI ball)
+        focal_length: 554.25 # from camera calibration
 
-  # Tracking
-  tracking:
-    enabled: true
-    max_age: 10 # frames before track is deleted
-    min_hits: 3 # detections before track is confirmed
+      # Tracking
+      tracking:
+        enabled: true
+        max_age: 10 # frames before track is deleted
+        min_hits: 3 # detections before track is confirmed
 
-# -----------------------------------------------------------------------------
-# Robot Detection
-# -----------------------------------------------------------------------------
-robot_detection:
-  enabled: true
+    # -----------------------------------------------------------------------------
+    # Robot Detection
+    # -----------------------------------------------------------------------------
+    robot_detection:
+      enabled: true
 
-  # YOLO
-  yolo:
-    class_id: 1
-    min_confidence: 0.5
+      # YOLO
+      yolo:
+        class_id: 1
+        min_confidence: 0.5
 
-  # Color-based team detection
-  team_colors:
-    blue:
-      hue_low: 100
-      hue_high: 130
-      saturation_low: 100
-      value_low: 80
-    yellow:
-      hue_low: 20
-      hue_high: 40
-      saturation_low: 100
-      value_low: 100
+      # Color-based team detection
+      team_colors:
+        blue:
+          hue_low: 100
+          hue_high: 130
+          saturation_low: 100
+          value_low: 80
+        yellow:
+          hue_low: 20
+          hue_high: 40
+          saturation_low: 100
+          value_low: 100
 
-  # Size constraints
-  min_area: 500
-  max_area: 100000
+      # Size constraints
+      min_area: 500
+      max_area: 100000
 
-  # Distance estimation
-  robot_height: 0.50 # meters (approximate)
+      # Distance estimation
+      robot_height: 0.50 # meters (approximate)
 
-# -----------------------------------------------------------------------------
-# Goal Detection
-# -----------------------------------------------------------------------------
-goal_detection:
-  enabled: true
+    # -----------------------------------------------------------------------------
+    # Goal Detection
+    # -----------------------------------------------------------------------------
+    goal_detection:
+      enabled: true
 
-  # YOLO
-  yolo:
-    class_id: 2
-    min_confidence: 0.5
+      # YOLO
+      yolo:
+        class_id: 2
+        min_confidence: 0.5
 
-  # Color-based (goalpost white/gray)
-  color:
-    hue_low: 0
-    hue_high: 180
-    saturation_low: 0
-    saturation_high: 50
-    value_low: 180
-    value_high: 255
+      # Color-based (goalpost white/gray)
+      color:
+        hue_low: 0
+        hue_high: 180
+        saturation_low: 0
+        saturation_high: 50
+        value_low: 180
+        value_high: 255
 
-  # Goalpost dimensions
-  goalpost_height: 0.80 # meters
-  goalpost_width: 0.10 # meters
-  goal_width: 2.60 # meters
+      # Goalpost dimensions
+      goalpost_height: 0.80 # meters
+      goalpost_width: 0.10 # meters
+      goal_width: 2.60 # meters
 
-# -----------------------------------------------------------------------------
-# Field Detection
-# -----------------------------------------------------------------------------
-field_detection:
-  enabled: true
+    # -----------------------------------------------------------------------------
+    # Field Detection
+    # -----------------------------------------------------------------------------
+    field_detection:
+      enabled: true
 
-  # Green field color (HSV)
-  color:
-    hue_low: 35
-    hue_high: 85
-    saturation_low: 50
-    value_low: 50
+      # Green field color (HSV)
+      color:
+        hue_low: 35
+        hue_high: 85
+        saturation_low: 50
+        value_low: 50
 
-  # Line detection (white lines)
-  lines:
-    enabled: true
-    color:
-      hue_low: 0
-      hue_high: 180
-      saturation_low: 0
-      saturation_high: 50
-      value_low: 200
-      value_high: 255
+      # Line detection (white lines)
+      lines:
+        enabled: true
+        color:
+          hue_low: 0
+          hue_high: 180
+          saturation_low: 0
+          saturation_high: 50
+          value_low: 200
+          value_high: 255
 
-    # Hough lines
-    rho: 1
-    theta: 0.0175 # ~1 degree
-    threshold: 50
-    min_line_length: 50
-    max_line_gap: 10
+        # Hough lines
+        rho: 1
+        theta: 0.0175 # ~1 degree
+        threshold: 50
+        min_line_length: 50
+        max_line_gap: 10
 
-  # Field boundary
-  boundary:
-    enabled: true
-    erosion_size: 10
-    min_field_area: 0.3 # Minimum ratio of image
+      # Field boundary
+      boundary:
+        enabled: true
+        erosion_size: 10
+        min_field_area: 0.3 # Minimum ratio of image
 
-# -----------------------------------------------------------------------------
-# Image Processing
-# -----------------------------------------------------------------------------
-preprocessing:
-  # Gaussian blur
-  blur:
-    enabled: true
-    kernel_size: 5
+    # -----------------------------------------------------------------------------
+    # Image Processing
+    # -----------------------------------------------------------------------------
+    preprocessing:
+      # Gaussian blur
+      blur:
+        enabled: true
+        kernel_size: 5
 
-  # Contrast enhancement
-  enhance:
-    enabled: true
-    method: "clahe" # "clahe", "histogram", "none"
-    clip_limit: 2.0
-    tile_size: 8
+      # Contrast enhancement
+      enhance:
+        enabled: true
+        method: "clahe" # "clahe", "histogram", "none"
+        clip_limit: 2.0
+        tile_size: 8
 
-  # ROI (Region of Interest)
-  roi:
-    enabled: false
-    x: 0
-    y: 100
-    width: 640
-    height: 280
+      # ROI (Region of Interest)
+      roi:
+        enabled: false
+        x: 0
+        y: 100
+        width: 640
+        height: 280
 
-# -----------------------------------------------------------------------------
-# Performance
-# -----------------------------------------------------------------------------
-performance:
-  # Threading
-  use_multiprocessing: false
-  max_workers: 2
+    # -----------------------------------------------------------------------------
+    # Performance
+    # -----------------------------------------------------------------------------
+    performance:
+      # Threading
+      use_multiprocessing: false
+      max_workers: 2
 
-  # GPU acceleration
-  use_cuda: false
-  cuda_device: 0
+      # GPU acceleration
+      use_cuda: false
+      cuda_device: 0
 
-  # Frame skip
-  process_every_n_frames: 1
+      # Frame skip
+      process_every_n_frames: 1
 
-  # Timeout
-  detection_timeout: 0.1 # seconds
+      # Timeout
+      detection_timeout: 0.1 # seconds
