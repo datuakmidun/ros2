@@ -109,6 +109,11 @@ class BallDetectorNode(Node):
         self.declare_parameter('publish_debug', True)
         self.declare_parameter('detection_rate', 30.0)
         
+        # Calibration Parameters
+        self.declare_parameter('focal_length_front', 554.0)
+        self.declare_parameter('focal_length_omni', 400.0) # Omni usually wider
+        self.declare_parameter('ball_diameter', 0.15) # FIFA Size 1/Generic (Adjust to actual)
+        
         # Get parameters
         self.use_yolo = self.get_parameter('use_yolo').value
         self.use_color = self.get_parameter('use_color').value
@@ -327,11 +332,14 @@ class BallDetectorNode(Node):
     ) -> Optional[BallDetection]:
         """Detect ball using YOLO."""
         try:
+            # Select focal length
+            focal_length = self.focal_length_omni if 'omni' in source else self.focal_length_front
+            
             # Detect ball class (custom model: 0, COCO: 32)
             results = self.model.predict(
                 frame,
                 conf=self.yolo_conf,
-                classes=[self.ball_class_id],
+                classes=[self.ball_class_id],  # Use configurable class ID
                 verbose=False,
             )
             
@@ -353,37 +361,37 @@ class BallDetectorNode(Node):
                     
                     # Check aspect ratio (ball should be roughly square)
                     aspect_ratio = max(width, height) / (min(width, height) + 1e-6)
-                    if aspect_ratio > 2.0:  # Skip elongated objects
+                    if aspect_ratio > 2.0:  # If too elongated, probably not a ball
                         continue
-                    
+                        
                     conf = float(boxes.conf[i])
                     if conf > best_conf:
                         best_conf = conf
                         best_detection = {
-                            'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
+                            'xyxy': xyxy,
                             'conf': conf
                         }
                 
-                if best_detection is None:
-                    continue
+                if best_detection:
+                    x1, y1, x2, y2 = best_detection['xyxy']
+                    cx = (x1 + x2) / 2
+                    cy = (y1 + y2) / 2
+                    radius = max(x2 - x1, y2 - y1) / 2
                     
-                x1, y1 = best_detection['x1'], best_detection['y1']
-                x2, y2 = best_detection['x2'], best_detection['y2']
-                
-                cx = (x1 + x2) / 2
-                cy = (y1 + y2) / 2
-                radius = max(x2 - x1, y2 - y1) / 2
-                
-                distance = estimate_ball_distance(
-                    radius, self.ball_diameter, self.focal_length
-                )
-                
-                return BallDetection(
-                    x=cx, y=cy, radius=radius,
-                    confidence=best_detection['conf'],
-                    source=f'yolo_{source}',
-                    distance=distance,
-                )
+                    distance = estimate_ball_distance(
+                        radius, self.ball_diameter, focal_length
+                    )
+                    
+                    # Debug log parameter for calibration
+                    if self.publish_debug:
+                        self.get_logger().debug(f"[{source}] Radius: {radius:.1f}px -> Dist: {distance:.2f}m (FL: {focal_length})")
+                    
+                    return BallDetection(
+                        x=cx, y=cy, radius=radius,
+                        confidence=best_detection['conf'],
+                        source=f'yolo_{source}',
+                        distance=distance,
+                    )
             
             return None
             
@@ -397,6 +405,9 @@ class BallDetectorNode(Node):
         source: str
     ) -> Optional[BallDetection]:
         """Detect ball using color segmentation."""
+        # Select focal length
+        focal_length = self.focal_length_omni if 'omni' in source else self.focal_length_front
+
         # Apply CLAHE for better color detection
         enhanced = apply_clahe(frame)
         
@@ -441,8 +452,12 @@ class BallDetectorNode(Node):
         
         # Estimate distance
         distance = estimate_ball_distance(
-            radius, self.ball_diameter, self.focal_length
+            radius, self.ball_diameter, focal_length
         )
+        
+        # Debug log parameter for calibration
+        if self.publish_debug:
+             self.get_logger().debug(f"[{source}] Radius: {radius:.1f}px -> Dist: {distance:.2f}m (FL: {focal_length})")
         
         # Confidence based on circularity and area
         confidence = circularity * min(1.0, area / 1000)
