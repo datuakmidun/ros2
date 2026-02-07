@@ -741,6 +741,7 @@ goal:
 
 > **Tujuan:** Motion control, path planning, dan kinematika robot  
 > **Priority:** 🔴 CRITICAL  
+> **Status:** ⚠️ IN PROGRESS  
 > **Estimated Duration:** 3 minggu
 
 #### 6.1 Structure
@@ -749,29 +750,23 @@ goal:
 krsbi_control/
 ├── krsbi_control/
 │   ├── __init__.py
-│   ├── motion_controller.py
-│   ├── omni_kinematics.py
-│   ├── pid_controller.py
-│   ├── path_planner.py
-│   ├── trajectory_tracker.py
-│   ├── localization.py
+│   ├── motion_controller.py     # Velocity ramping & limits
+│   ├── omni_kinematics.py       # 3-wheel Omni Kinematics
+│   ├── pid_controller.py        # PID implementation
+│   ├── path_planner.py          # Simple P2P Planner
+│   ├── trajectory_tracker.py    # Placeholder
+│   ├── localization.py          # Odometry & IMU fusion
+│   ├── behavior_node.py         # Behavior dispatcher
 │   └── behaviors/
-│       ├── __init__.py
-│       ├── go_to_position.py
-│       ├── follow_ball.py
-│       ├── dribble.py
-│       └── kick.py
+│       ├── __init__.py          # (Empty)
+│       └── (Implemented in behavior_node per roadmap plan)
 ├── config/
-│   ├── pid_params.yaml
-│   ├── motion_limits.yaml
-│   └── behavior_params.yaml
+│   └── control_config.yaml      # Consolidated config
 ├── launch/
 │   └── control_bringup.launch.py
-├── test/
-│   ├── test_kinematics.py
-│   └── test_pid.py
 ├── package.xml
-└── setup.py
+├── setup.py
+└── README.md
 ```
 
 #### 6.2 Development Tasks
@@ -779,24 +774,24 @@ krsbi_control/
 | Task               | Deskripsi                                      | Status  |
 | ------------------ | ---------------------------------------------- | ------- |
 | **Kinematics**     |                                                |         |
-| 6.2.1              | Implementasi forward kinematics (3 omni-wheel) | ⬜ TODO |
-| 6.2.2              | Implementasi inverse kinematics                | ⬜ TODO |
+| 6.2.1              | Implementasi forward kinematics (3 omni-wheel) | ✅ DONE |
+| 6.2.2              | Implementasi inverse kinematics                | ✅ DONE |
 | 6.2.3              | Unit test kinematics                           | ⬜ TODO |
 | **Motion Control** |                                                |         |
-| 6.2.4              | Implementasi PID controller                    | ⬜ TODO |
-| 6.2.5              | Velocity ramping (acceleration limit)          | ⬜ TODO |
-| 6.2.6              | Implementasi motion_controller node            | ⬜ TODO |
+| 6.2.4              | Implementasi PID controller                    | ✅ DONE |
+| 6.2.5              | Velocity ramping (acceleration limit)          | ✅ DONE |
+| 6.2.6              | Implementasi motion_controller node            | ✅ DONE |
 | **Path Planning**  |                                                |         |
-| 6.2.7              | Simple path planner (straight line)            | ⬜ TODO |
-| 6.2.8              | Obstacle avoidance (local)                     | ⬜ TODO |
+| 6.2.7              | Simple path planner (straight line)            | ✅ DONE |
+| 6.2.8              | Obstacle avoidance (local)                     | ✅ DONE |
 | 6.2.9              | Trajectory tracking                            | ⬜ TODO |
 | **Localization**   |                                                |         |
-| 6.2.10             | Odometry dari encoder                          | ⬜ TODO |
-| 6.2.11             | IMU fusion                                     | ⬜ TODO |
+| 6.2.10             | Odometry dari encoder                          | ✅ DONE |
+| 6.2.11             | IMU fusion                                     | ✅ DONE |
 | 6.2.12             | Field-based localization correction            | ⬜ TODO |
 | **Behaviors**      |                                                |         |
-| 6.2.13             | GoToPosition behavior                          | ⬜ TODO |
-| 6.2.14             | FollowBall behavior                            | ⬜ TODO |
+| 6.2.13             | GoToPosition behavior                          | ✅ DONE |
+| 6.2.14             | FollowBall behavior                            | ✅ DONE |
 | 6.2.15             | Dribble behavior                               | ⬜ TODO |
 | 6.2.16             | Kick behavior                                  | ⬜ TODO |
 

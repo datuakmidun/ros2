@@ -1,0 +1,52 @@
+# =============================================================================
+# KRSBI-B Soccer Robot - Control Configuration
+# =============================================================================
+
+# Motion Controller
+motion:
+  mode: "velocity" # "velocity" or "position"
+  frequency: 50.0 # Hz
+
+  # Velocity ramping
+  ramping:
+    enabled: true
+    max_linear_accel: 2.0 # m/s²
+    max_angular_accel: 6.28 # rad/s²
+    decel_factor: 1.5
+
+  # Timeout
+  timeout: 0.5 # seconds
+
+# Omni Kinematics (3-wheel)
+kinematics:
+  wheel_radius: 0.05 # meters
+  robot_radius: 0.17 # meters (center to wheel)
+  wheel_angles: [0, 120, 240] # Degrees
+  max_wheel_rpm: 300.0
+  correction: [1.0, 1.0, 1.0]
+
+# PID Controller (Velocity)
+pid:
+  kp: 1.2
+  ki: 0.5
+  kd: 0.05
+  k_ff: 0.1 # Feed-forward
+  max_output: 100.0 # PWM/Velocity %
+  integral_limit: 50.0
+
+# Localization (Odometry)
+localization:
+  publish_tf: true
+  use_imu: true
+  encoders:
+    ticks_per_rev: 1400 # PPR * 4 (quadrature)
+  covariance:
+    pos: 0.01
+    rot: 0.01
+
+# Path Planning
+planning:
+  max_vel_x: 2.0
+  max_vel_y: 2.0
+  max_vel_theta: 4.0
+  goal_tolerance: 0.05
