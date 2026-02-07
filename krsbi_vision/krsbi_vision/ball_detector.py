@@ -329,12 +329,11 @@ class BallDetectorNode(Node):
     ) -> Optional[BallDetection]:
         """Detect ball using YOLO."""
         try:
-            # Detect all objects, filter by shape/size later
-            # Remove class filter to catch any ball-like objects
+            # Only detect sports ball (class 32 in COCO)
             results = self.model.predict(
                 frame,
                 conf=self.yolo_conf,
-                # classes=[32],  # Disabled: detect all objects
+                classes=[32],  # Sports ball only
                 verbose=False,
             )
             
@@ -343,18 +342,35 @@ class BallDetectorNode(Node):
                 if boxes is None or len(boxes) == 0:
                     continue
                 
-                # Get best ball detection
-                best_idx = 0
+                # Find best ball-like detection (check aspect ratio)
+                best_detection = None
                 best_conf = 0
                 
                 for i in range(len(boxes)):
+                    xyxy = boxes.xyxy[i].cpu().numpy()
+                    x1, y1, x2, y2 = xyxy
+                    
+                    width = x2 - x1
+                    height = y2 - y1
+                    
+                    # Check aspect ratio (ball should be roughly square)
+                    aspect_ratio = max(width, height) / (min(width, height) + 1e-6)
+                    if aspect_ratio > 2.0:  # Skip elongated objects
+                        continue
+                    
                     conf = float(boxes.conf[i])
                     if conf > best_conf:
                         best_conf = conf
-                        best_idx = i
+                        best_detection = {
+                            'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
+                            'conf': conf
+                        }
                 
-                xyxy = boxes.xyxy[best_idx].cpu().numpy()
-                x1, y1, x2, y2 = xyxy
+                if best_detection is None:
+                    continue
+                    
+                x1, y1 = best_detection['x1'], best_detection['y1']
+                x2, y2 = best_detection['x2'], best_detection['y2']
                 
                 cx = (x1 + x2) / 2
                 cy = (y1 + y2) / 2
@@ -366,7 +382,7 @@ class BallDetectorNode(Node):
                 
                 return BallDetection(
                     x=cx, y=cy, radius=radius,
-                    confidence=best_conf,
+                    confidence=best_detection['conf'],
                     source=f'yolo_{source}',
                     distance=distance,
                 )
