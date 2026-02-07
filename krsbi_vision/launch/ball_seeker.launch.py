@@ -28,6 +28,9 @@ def generate_launch_description():
     # Arguments
     omni_dev_arg = DeclareLaunchArgument('omni_device', default_value='0')
     front_dev_arg = DeclareLaunchArgument('front_device', default_value='1')
+    omni_rot_arg = DeclareLaunchArgument('omni_rotation', default_value='180')
+    front_rot_arg = DeclareLaunchArgument('front_rotation', default_value='0')
+    
     model_arg = DeclareLaunchArgument('model', default_value=default_model)
     class_arg = DeclareLaunchArgument('ball_class', default_value='0')
     
@@ -40,7 +43,8 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'device_id': LaunchConfiguration('omni_device'),
-            'width': 640, 'height': 480, 'fps': 30
+            'width': 640, 'height': 480, 'fps': 30,
+            'rotation': LaunchConfiguration('omni_rotation'),
         }],
         remappings=[('image_raw', 'camera/omni/image_raw')]
     )
@@ -54,7 +58,8 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'device_id': LaunchConfiguration('front_device'),
-            'width': 640, 'height': 480, 'fps': 30
+            'width': 640, 'height': 480, 'fps': 30,
+            'rotation': LaunchConfiguration('front_rotation'),
         }],
         remappings=[('image_raw', 'camera/front/image_raw')]
     )
@@ -89,7 +94,7 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-        omni_dev_arg, front_dev_arg, model_arg, class_arg,
+        omni_dev_arg, front_dev_arg, omni_rot_arg, front_rot_arg, model_arg, class_arg,
         LogInfo(msg="Starting KRSBI Ball Seeker System..."),
         omni_cam,
         front_cam,

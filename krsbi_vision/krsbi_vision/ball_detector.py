@@ -101,7 +101,7 @@ class BallDetectorNode(Node):
         
         # Calibration Parameters
         self.declare_parameter('focal_length_front', 554.0)
-        self.declare_parameter('focal_length_omni', 400.0)
+        self.declare_parameter('focal_length_omni', 51.1)    # Calibrated from user data (1m -> 2.3m w/ 117.6)
         
         # Kalman filter
         self.declare_parameter('kalman_enabled', True)

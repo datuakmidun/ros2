@@ -26,6 +26,7 @@ def generate_launch_description():
     device_arg = DeclareLaunchArgument('device', default_value='0', description='Camera device ID')
     model_arg = DeclareLaunchArgument('model', default_value=default_model, description='YOLO model path')
     ball_class_arg = DeclareLaunchArgument('ball_class', default_value='0', description='Ball class ID')
+    rotation_arg = DeclareLaunchArgument('rotation', default_value='180', description='Camera rotation (0, 90, 180, 270)')
     
     # Single camera node (omni fisheye)
     camera_node = Node(
@@ -39,6 +40,7 @@ def generate_launch_description():
             'width': 640,
             'height': 480,
             'fps': 30,
+            'rotation': LaunchConfiguration('rotation'),
         }],
         remappings=[
             ('image_raw', 'camera/omni/image_raw'),
@@ -67,6 +69,7 @@ def generate_launch_description():
         device_arg,
         model_arg,
         ball_class_arg,
+        rotation_arg,
         camera_node,
         ball_detector,
     ])

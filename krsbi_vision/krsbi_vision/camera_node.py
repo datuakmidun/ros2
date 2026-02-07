@@ -41,6 +41,7 @@ class CameraNode(Node):
         self.declare_parameter('fps', 30)
         self.declare_parameter('auto_exposure', True)
         self.declare_parameter('publish_rate', 30.0)
+        self.declare_parameter('rotation', 0)  # 0, 90, 180, 270
         
         # Calibration parameters
         self.declare_parameter('fx', 554.25)
@@ -59,6 +60,7 @@ class CameraNode(Node):
         self.height = self.get_parameter('height').value
         self.fps = self.get_parameter('fps').value
         self.publish_rate = self.get_parameter('publish_rate').value
+        self.rotation = self.get_parameter('rotation').value
         
         # =================================================================
         # Camera calibration
@@ -128,7 +130,7 @@ class CameraNode(Node):
         self.timer = self.create_timer(period, self.publish_frame)
         
         self.get_logger().info(f'Front Camera Node started (device: {self.device_id})')
-    
+
     def init_camera(self):
         """Initialize camera capture."""
         self.cap = cv2.VideoCapture(self.device_id, cv2.CAP_V4L2)
@@ -164,6 +166,14 @@ class CameraNode(Node):
             ret, frame = self.cap.read()
             
             if ret:
+                # Apply rotation
+                if self.rotation == 180:
+                    frame = cv2.rotate(frame, cv2.ROTATE_180)
+                elif self.rotation == 90:
+                    frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                elif self.rotation == 270:
+                    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                    
                 with self.lock:
                     self.last_frame = frame
                     self.frame_count += 1
