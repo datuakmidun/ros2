@@ -22,6 +22,7 @@ from std_msgs.msg import Header
 
 import cv2
 import numpy as np
+import math
 from cv_bridge import CvBridge
 import threading
 import time
@@ -224,6 +225,31 @@ class BallDetectorNode(Node):
             self.model = None
             self.use_yolo = False
     
+    def calculate_bearing(self, x: float, y: float, frame_shape: Tuple[int, int, int], source: str) -> float:
+        """
+        Calculate bearing angle to target.
+        Returns: Angle in radians (0=Front, +ve=Left)
+        """
+        h, w = frame_shape[:2]
+        cx, cy = w / 2, h / 2
+        
+        if 'omni' in source:
+            # Omni: standard bearing from center
+            # Robot Front = Up (-Y in image)
+            # Robot Left = Left (-X in image)
+            # atan2(y, x) -> atan2(RobotLeft, RobotFront)
+            # RobotLeft = -(x - cx)   [Left side of image has x < cx -> -(neg) = pos]
+            # RobotFront = -(y - cy)  [Top side of image has y < cy -> -(neg) = pos]
+            return math.atan2(-(x - cx), -(y - cy))
+        else:
+            # Front: Pinhole model
+            # Positive bearing = Left
+            # x > cx (Right) -> Bearing < 0
+            # x < cx (Left) -> Bearing > 0
+            if self.focal_length_front > 0:
+                return -math.atan((x - cx) / self.focal_length_front)
+            return 0.0
+
     def front_callback(self, msg: Image):
         """Handle front camera image."""
         try:
@@ -384,6 +410,9 @@ class BallDetectorNode(Node):
                             radius, self.ball_diameter, focal_length
                         )
                     
+                    # Calculate bearing
+                    bearing = self.calculate_bearing(cx, cy, frame.shape, source)
+
                     # Debug log parameter for calibration
                     if self.publish_debug:
                         self.get_logger().debug(f"[{source}] Radius: {radius:.1f}px -> Dist: {distance:.2f}m (FL: {focal_length})")
@@ -393,6 +422,7 @@ class BallDetectorNode(Node):
                         confidence=best_detection['conf'],
                         source=f'yolo_{source}',
                         distance=distance,
+                        bearing=bearing,
                     )
             
             return None
@@ -460,6 +490,9 @@ class BallDetectorNode(Node):
                 radius, self.ball_diameter, focal_length
             )
         
+        # Calculate bearing
+        bearing = self.calculate_bearing(cx, cy, frame.shape, source)
+
         # Debug log parameter for calibration
         if self.publish_debug:
              self.get_logger().debug(f"[{source}] Radius: {radius:.1f}px -> Dist: {distance:.2f}m (FL: {focal_length})")
@@ -472,6 +505,7 @@ class BallDetectorNode(Node):
             confidence=confidence,
             source=f'color_{source}',
             distance=distance,
+            bearing=bearing,
         )
     
     def fuse_detections(
@@ -493,6 +527,12 @@ class BallDetectorNode(Node):
         radius = sum(d.radius * d.confidence for d in detections) / total_weight
         distance = sum(d.distance * d.confidence for d in detections) / total_weight
         
+        # Weighted bearing (careful with circular wrap-around, but for small angles avg is fine)
+        # For Omni, angles can be large, so simple average might be risky if close to +/- pi breakdown
+        # taking the one with highest confidence or front source is safer
+        best_bearing_src = max(detections, key=lambda d: d.confidence)
+        bearing = best_bearing_src.bearing
+
         # Prefer front camera YOLO
         best = max(detections, key=lambda d: (
             1.0 if 'front' in d.source else 0.5,
@@ -505,6 +545,7 @@ class BallDetectorNode(Node):
             confidence=min(1.0, total_weight),
             source='fused',
             distance=distance,
+            bearing=bearing,
         )
     
     def publish_ball(self, detection: Optional[BallDetection]):
@@ -517,9 +558,13 @@ class BallDetectorNode(Node):
         point_msg.header.frame_id = 'base_link'
         
         if detection:
-            point_msg.point.x = detection.distance
-            point_msg.point.y = 0.0  # TODO: calculate from bearing
-            point_msg.point.z = 0.0
+            # Use calculated bearing for accurate relative position
+            if detection.distance >= 0:
+                point_msg.point.x = detection.distance * math.cos(detection.bearing)
+                point_msg.point.y = detection.distance * math.sin(detection.bearing)
+            else:
+                point_msg.point.x = -1.0
+                point_msg.point.y = 0.0
         else:
             point_msg.point.x = -1.0  # Invalid
         
@@ -532,13 +577,19 @@ class BallDetectorNode(Node):
             msg.header.frame_id = 'base_link'
             
             # Position in world coordinates (meters)
-            msg.x = detection.distance  # Forward distance
-            msg.y = 0.0  # TODO: calculate lateral from bearing
+            # Use calculated bearing for accurate relative position
+            if detection.distance >= 0:
+                msg.x = detection.distance * math.cos(detection.bearing)
+                msg.y = detection.distance * math.sin(detection.bearing)
+            else:
+                msg.x = -1.0
+                msg.y = 0.0
+                
             msg.z = 0.0  # Assume ground level
             
             # Polar coordinates
             msg.distance = detection.distance
-            msg.angle = 0.0  # TODO: calculate from pixel position
+            msg.angle = detection.bearing
             
             # Status
             msg.confidence = detection.confidence

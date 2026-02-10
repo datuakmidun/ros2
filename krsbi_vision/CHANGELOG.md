@@ -123,6 +123,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] - 2026-02-10
+
+### Added
+
+#### Detection Logic
+
+- **Bearing Calculation**: Implemented `calculate_bearing` in `ball_detector.py` to compute accurate angle to the ball for both Omni and Front cameras.
+  - **Omni Camera**: Uses `atan2` on pixel coordinates relative to the center to provide 360-degree bearing (0 rad = Front, +ve rad = Left).
+  - **Front Camera**: Uses pinhole model with focal length to provide precise bearing for centering.
+- **Message Updates**: Updated `BallPosition` and `PointStamped` messages to include calculated `angle`/`bearing` and accurate relative `x`, `y` coordinates.
+
+### Changed
+
+#### Strategy Support
+
+- Enhanced support for the 4-stage strategy (Search, Rotate, Approach, Dribble) by providing essential bearing data.
+- Refined `ball_seeker.py` logic (verified) to utilize the new bearing information for "Search" and "Rotate" modes.
+
+---
+
 ## [Unreleased]
 
 ### Planned
@@ -140,4 +160,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Description                                 |
 | ------- | ---------- | ------------------------------------------- |
+| 1.0.1   | 2026-02-10 | Added ball bearing calculation & strategy   |
 | 1.0.0   | 2026-02-06 | Initial release with dual camera and Kalman |
