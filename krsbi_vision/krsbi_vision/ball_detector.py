@@ -301,6 +301,27 @@ class BallDetectorNode(Node):
                 # Otherwise use omni
                 best_detection = next((d for d in detections if 'omni' in d.source), None)
         
+        if self.kalman_enabled and self.tracker:
+            measurement = None
+            if best_detection and best_detection.distance > 0:
+                # Convert to Cartesian (Robot Frame)
+                # x is forward, y is left
+                bx = best_detection.distance * math.cos(best_detection.bearing)
+                by = best_detection.distance * math.sin(best_detection.bearing)
+                measurement = np.array([bx, by])
+            
+            # Update tracker
+            self.tracker.update(measurement)
+            
+            # Get estimate
+            vel = self.tracker.get_velocity()
+            if vel is not None:
+                self.last_velocity = (float(vel[0]), float(vel[1]))
+            
+            pos = self.tracker.get_position()
+            if pos is not None:
+                self.last_position = (float(pos[0]), float(pos[1]))
+
         self.last_detection = best_detection
         
         # Publish results
@@ -594,15 +615,18 @@ class BallDetectorNode(Node):
             # Status
             msg.confidence = detection.confidence
             msg.is_visible = True
-            msg.is_moving = False  # TODO: calculate from velocity
-            
             # Velocity (from Kalman)
             if self.last_velocity:
                 msg.vx = self.last_velocity[0]
                 msg.vy = self.last_velocity[1]
+                
+                # Check moving
+                speed = math.sqrt(msg.vx**2 + msg.vy**2)
+                msg.is_moving = speed > 0.1  # Threshold 0.1 m/s
             else:
                 msg.vx = 0.0
                 msg.vy = 0.0
+                msg.is_moving = False
             
             # Camera source
             if 'omni' in detection.source:
