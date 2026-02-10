@@ -27,7 +27,7 @@ def generate_launch_description():
     
     # Arguments
     omni_dev_arg = DeclareLaunchArgument('omni_device', default_value='0')
-    front_dev_arg = DeclareLaunchArgument('front_device', default_value='1')
+    front_dev_arg = DeclareLaunchArgument('front_device', default_value='2')
     omni_rot_arg = DeclareLaunchArgument('omni_rotation', default_value='180')
     front_rot_arg = DeclareLaunchArgument('front_rotation', default_value='0')
     
