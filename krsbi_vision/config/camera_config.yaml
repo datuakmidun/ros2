@@ -11,7 +11,7 @@
     # -----------------------------------------------------------------------------
     front_camera:
       enabled: true
-      device_id: 1 # /dev/video1
+      device_id: 2 # /dev/video2
       name: "front_camera"
       frame_id: "front_camera_link"
 
