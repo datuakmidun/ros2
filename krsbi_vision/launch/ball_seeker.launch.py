@@ -37,7 +37,7 @@ def generate_launch_description():
     # 1. Omni Camera
     omni_cam = Node(
         package='krsbi_vision',
-        executable='camera_node',
+        executable='omni_camera_node',
         name='omni_camera',
         namespace='krsbi',
         output='screen',
